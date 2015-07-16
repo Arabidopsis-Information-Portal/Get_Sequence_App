@@ -1,0 +1,139 @@
+<div class="science-app" data-app-name="getSequence-app">
+  <h2>Get-Sequence App 0.1</h2>
+
+  <div id="sequence_viewer">
+    <ul id="ev_tabs" class="nav nav-tabs" role="tablist">
+      <li id="t_about" class="active"><a href="#d_about" role="tab" data-toggle="tab">About</a></li>
+      <li id="t_identifier"><a href="#d_identifier" role="tab" data-toggle="tab">Search by Identifier</a></li>
+      <li id="t_location"><a href="#d_location" role="tab" data-toggle="tab">Search by Genome Location</a></li>
+    </ul>
+
+
+    <div id="ev_tab_content" class="tab-content">
+      <div class="tab-pane" id="d_about">
+        <div class="container">
+	  <h4>Retrieve a sequence from A. thaliana Col-0 genome</h4>
+          <blockquote>
+            <p>Get a sequence by searching with a gene locus id or by providing a genome coordinate. This app uses the <a href="https://github.com/keithwhor/NtSeq">NtSeq</a> library for the sequence manipulations and the <a href="http://biojs.io/d/biojs-vis-sequence">BioJS Sequence Component</a> to display the sequences in various formats. The sequences are retrieved with one of Araport's <a href="https://github.com/Arabidopsis-Information-Portal/Get_Sequence_API">Get_Sequence</a> APIs. </p>
+	      <p><small>Genome Sequence Source: TAIR10</small></p>
+            
+          </blockquote>
+        </div>
+      </div>
+
+      <div class="tab-pane active" id="d_identifier">
+	<h4>Enter a gene identifier:</h4>
+        <form name="identifier_search_form" role="form">
+          <div class="form-group col-xs-3">
+            <label for="geneIdentifier" class="control-label"></label>
+            <input type="text" name="geneIdentifier" id="geneIdentifier" value="AT1G33930" class="form-control" placeholder="AT1G33930"/>
+	    <p><small>e.g. AT1G33930, AT1G01460, AT4G19020</small></p>
+          </div>
+	  <div class="form-group col-xs-2">
+	    <b>Add flanking region:</b>
+            <select name="flankLen" id="flankLen" class="form-control">
+	      <option value="0">None</option>
+	      <option value="50">50 bp</option>
+	      <option value="100">100 bp</option>
+	      <option value="250">250 bp</option>
+              <option value="500">500 bp</option>
+              <option value="1000">1000 bp</option>
+              <option value="2000">2000 bp</option>
+              <option value="3000">3000 bp</option>
+              <option value="4000">4000 bp</option>
+            </select>
+	  </div>
+	  
+	  <div class="form-group col-xs-2">
+	    <b>Reverse Complement</b>
+            <label for="revComp" class="control-label"></label>
+            <input type="checkbox" name="revComp" id="revComp" value="0" class="form-control"/>
+	  </div>
+	  <br />
+	  <div class="form-group">
+            <button type="submit" class="btn btn-success">Submit</button>
+            <button type="button" class="btn btn-danger" id="identifier_search_form_reset">Clear</button>
+	  </div>	  
+	</form>
+	<br /><br />	
+	<div id="identifier_results" class="identifier_results"></div>
+	<button title="FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence">DOWNLOAD</button>
+
+	<br />
+      </div>
+
+      <div class="tab-pane active" id="d_location">
+	<h4>Enter the coordinates:</h4>
+	<br>
+	
+        <form name="location_search_form" role="form">
+	  
+          <div class="form-group col-xs-2">
+	    <b>Select an id:</b>
+            <label for="chromosomeId" class="control-label"></label>
+            <select name="chromosomeId" id="chromosomeId" class="form-control">
+              <option value="Chr1">Chr1</option>
+              <option value="Chr2">Chr2</option>
+              <option value="Chr3">Chr3</option>
+              <option value="Chr4">Chr4</option>
+              <option value="Chr5">Chr5</option>
+              <option value="ChrC">ChrC</option>
+              <option value="ChrM">ChrM</option>
+            </select>
+	  </div>
+	  
+	  <div class="form-group col-xs-2">
+	    <b>Enter Start:</b>
+            <label for="startCoordinate" class="control-label"></label>
+            <input type="text" name="startCoordinate" id="startCoordinate" value="1" class="form-control" placeholder="1" size="3" required/>
+	  </div>
+	  
+	  <div class="form-group col-xs-2">
+	    <b>Enter End:</b>
+            <label for="endCoordinate" class="control-label"></label>
+            <input type="text" name="endCoordinate" id="endCoordinate" value="1000" class="form-control" placeholder="1000" size="3" required/>
+          </div>
+	  
+	  <div class="form-group col-xs-2">
+	    <b>Add flanking region:</b>
+            <select name="flankLen2" id="flankLen2" class="form-control">
+	      <option value="0">None</option>
+	      <option value="50">50 bp</option>
+	      <option value="100">100 bp</option>
+	      <option value="250">250 bp</option>
+              <option value="500">500 bp</option>
+              <option value="1000">1000 bp</option>
+              <option value="2000">2000 bp</option>
+              <option value="3000">3000 bp</option>
+              <option value="4000">4000 bp</option>
+            </select>
+	  </div>
+	  
+	  <div class="form-group col-xs-2">
+	    <b>Reverse Complement</b>
+            <label for="revComp2" class="control-label"></label>
+            <input type="checkbox" name="revComp2" id="revComp2" value="0" class="form-control"/>
+	  </div>
+
+		  
+	  <br /><br /><br /><br />
+	  
+	  <div class="form-group">
+            <button type="submit" class="btn btn-success">Submit</button>
+            <button type="button" class="btn btn-danger" id="location_search_form_reset">Clear</button>
+	  </div>
+	  
+	</form>
+	<br /><br />
+	<div id="location_results" class="location_results"></div>
+	<button title="FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence2">DOWNLOAD</button>
+	<br />
+      </div>
+  
+    </div>
+    <div class="error"></div>
+    <br />
+  </div>
+  
+  
+</div>
