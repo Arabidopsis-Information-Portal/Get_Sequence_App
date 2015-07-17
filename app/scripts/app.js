@@ -100,14 +100,14 @@
 	    j_start = data.result[0].start;
 	    j_end = data.result[0].end;
 	    j_chromosome = data.result[0].chromosome;
-	    new_id = geneIdentifier + ' ' + 'Location=' + j_chromosome + '..' + j_start + '-' + j_end + ' Flank=' + flankLength + 'bp' + ' ReverseComplemented=False';
+	    new_id =  'Sequence ' + 'Location=' + j_chromosome + '..' + j_start + '-' + j_end + ' Flank=' + flankLength + 'bp' + ' ReverseComplemented=False';
 	    
 	    //Option for reverse complementing
 	    if ( revSeq === true ) {
 		var loadSequence = new Nt.Seq();
 		loadSequence.read(j_sequence);
 		j_sequence = loadSequence.complement().sequence();
-		new_id = geneIdentifier + ' ' + 'Location=' + j_chromosome + '..' + j_start + '-' + j_end + ' Flank=' + flankLength + 'bp' + ' ReverseComplemented=True';
+		new_id = 'Sequence ' + 'Location=' + j_chromosome + '..' + j_start + '-' + j_end + ' Flank=' + flankLength + 'bp' + ' ReverseComplemented=True';
 	    }
 	    
 	    // Initialize a BioJS sequence object
