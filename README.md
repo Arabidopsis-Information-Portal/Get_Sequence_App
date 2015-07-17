@@ -1,5 +1,9 @@
 # Get-Sequence App 1.0
 
+Retrieve a sequence from A. thaliana Col-0 genome
+
+    Get a sequence by searching with a gene locus id or by providing a genome coordinate. This app uses the NtSeq library for the sequence manipulations and the BioJS Sequence Component to display the sequences in various formats. The sequences are retrieved with one of Araport's Get_Sequence APIs. 
+
 An [Araport](http://www.araport.org) Science App created using [Yeoman](http://yeoman.io)
 and the [Araport science app generator](https://www.npmjs.org/package/generator-aip-science-app).
 
