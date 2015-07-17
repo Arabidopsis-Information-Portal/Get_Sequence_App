@@ -6,15 +6,17 @@
     var appContext = $('[data-app-name="getSequence-app"]');
     
     window.addEventListener('Agave::ready', function() {
-	
+
+	// Initialize some variables
 	var Agave = window.Agave;		
 	var geneIdentifier = '';
 	var revComp = '';
-	var flankLength;
-	var revSeq;
-	var j_sequence;
-	var new_id;
-	
+	var flankLength = 0;
+	var revSeq = false;
+	var new_id = '';
+	var j_sequence, j_start, j_end, j_chromosome;
+
+
 	var DEBUG = true;
 	var log = function log( message ) {
             if ( DEBUG ) {
@@ -29,12 +31,17 @@
 
 	// Error notification
 	var showError = function(err) {
+	    
+	    $('.wait_region').empty();
+	    $('.wait_region2').empty();
             $('.error', appContext).html('<div class="alert alert-danger">' + err.obj.message + '</div>');
             console.error('Status: ' + err.obj.status + '  Message: ' + err.obj.message);
 	};
 
 	
-	// Displayer function for the identifier search
+	/* - - - - - - - - - - - - - - - - - - - - - -  */ 	
+	/* Displayer function for the identifier search */
+	/* - - - - - - - - - - - - - - - - - - - - - -  */                                      
 	var showIdentifierResults = function showIdentifierResults( json ) {
 
 	    // Verify the API query was successful
@@ -48,9 +55,9 @@
 
 	    // Extract the sequence
 	    j_sequence = data.result[0].sequence;
-	    var j_start = data.result[0].start;
-	    var j_end = data.result[0].end;
-	    var j_chromosome = data.result[0].chromosome;
+	    j_start = data.result[0].start;
+	    j_end = data.result[0].end;
+	    j_chromosome = data.result[0].chromosome;
 	    new_id = geneIdentifier + ' ' + 'Location=' + j_chromosome + '..' + j_start + '-' + j_end + ' Flank=' + flankLength + 'bp' + ' ReverseComplemented=False';
 
 	    //Option for reverse complementing
@@ -62,19 +69,21 @@
 	    }
 	    
 	    // Initialize a BioJS sequence object
-	    var mySequence = new Sequence({
+	    $('.wait_region').empty();
+	    mySequenceI.clearSequence();
+	    mySequenceI = new Sequence({
 		sequence : j_sequence,
 		target : 'identifier_results',
 		format : 'FASTA',
-		numCols: 100,
+		numCols: 60,
 		id : new_id,
 	    });
 	    
-	    // Hides the format selector.
-	    //mySequence.hideFormatSelector();
 	};
 
-	// Displayer function for the location search
+	/* - - - - - - - - - - - - - - - - - - - - - - */ 
+	/* Displayer function for the location search- */
+	/* - - - - - - - - - - - - - - - - - - - - - - */ 
 	var showLocationResults = function showIdentifierResults( json ) {
 	    
 	    // Verify the API query was successful
@@ -88,9 +97,9 @@
 
 	    // Extract the sequence
 	    j_sequence = data.result[0].sequence;	    
-	    var j_start = data.result[0].start;
-	    var j_end = data.result[0].end;
-	    var j_chromosome = data.result[0].chromosome;
+	    j_start = data.result[0].start;
+	    j_end = data.result[0].end;
+	    j_chromosome = data.result[0].chromosome;
 	    new_id = geneIdentifier + ' ' + 'Location=' + j_chromosome + '..' + j_start + '-' + j_end + ' Flank=' + flankLength + 'bp' + ' ReverseComplemented=False';
 	    
 	    //Option for reverse complementing
@@ -102,39 +111,74 @@
 	    }
 	    
 	    // Initialize a BioJS sequence object
-	    var mySequence = new Sequence({
+	    $('.wait_region2').empty();
+	    mySequenceL.clearSequence();
+	    mySequenceL = new Sequence({
 		sequence : j_sequence,
 		target : 'location_results',
 		format : 'FASTA',
-		numCols: 100,
+		numCols: 60,
 		id : new_id,
 	    });
-	    
-	    // Hides the format selector.
-	    //mySequence.hideFormatSelector();
 
 	};
 	
 	/* Start here */
 	init();
+	
+	var mySequenceI = new Sequence({
+	    sequence : '\n\n\n\n\n\n',
+	    target : 'identifier_results',
+	    format : 'FASTA',
+	    numCols: 60,
+	    id : 'Sequence',
+	});
 
+	var mySequenceL = new Sequence({
+	    sequence : '\n\n\n\n\n\n',
+	    target : 'location_results',
+	    format : 'FASTA',
+	    numCols: 60,
+	    id : 'Sequence',
+	});
+	
 	// Setup clear button functions
 	$('#identifier_search_form_reset').on('click', function() {
             $('.error').empty();
+	    $('.wait_region').empty();
             $('.identifier_results').empty();
-            $('#geneIdentifier').val('AT1G33930');
+            $('#geneIdentifier').val('AT1G01210');
             $('#flankLen').val('0');
 	    $("#revComp").prop("checked", false);
+
+	    mySequenceI.clearSequence();
+	    mySequenceI = new Sequence({
+		sequence : '\n\n\n\n\n\n',
+		target : 'identifier_results',
+		format : 'FASTA',
+		numCols: 60,
+		id : 'Sequence',
+	    });
 	});
 	
 	$('#location_search_form_reset').on('click', function() {
             $('.error').empty();
+	    $('.wait_region2').empty();
             $('.location_results').empty();
             $('#chromosomeId').val('Chr1');
-            $('#startCoordinate').val('0');
-	    $('#endCoordinate').val('0');
+            $('#startCoordinate').val('1');
+	    $('#endCoordinate').val('1000');
             $('#flankLen2').val('0');
 	    $("#revComp2").prop("checked", false);
+
+	    mySequenceL.clearSequence();
+	    mySequenceL = new Sequence({
+		sequence : '\n\n\n\n\n\n',
+		target : 'location_results',
+		format : 'FASTA',
+		numCols: 60,
+		id : 'Sequence',
+	    });
 	});
 
 
@@ -183,6 +227,9 @@
 	    
             e.preventDefault();
 
+	    $('.wait_region', appContext).html('<div id="loader_icon"><img src="https://apps.araport.org/jbrowse/plugins/EnsemblVariants/img/ajax-loader.gif"></div>');
+	    
+	    document.getElementById("wait_region").style.display="block";
 	    geneIdentifier = this.geneIdentifier.value;
 	    flankLength = this.flankLen.value;
 	    revSeq = $("#revComp").is(":checked");
@@ -195,7 +242,8 @@
 		flank: flankLength
             };
 	    
-            $('.identifier_results').empty();
+	    
+	    $('.identifier_results').empty();
             $('.error').empty();
 
 	    // Run the query
@@ -212,6 +260,8 @@
 	    
             e.preventDefault();
 
+	    $('.wait_region2', appContext).html('<div id="loader_icon"><img src="https://apps.araport.org/jbrowse/plugins/EnsemblVariants/img/ajax-loader.gif"></div>');
+	    
 	    flankLength = this.flankLen2.value;
 	    revSeq = $("#revComp2").is(":checked");
 	    
@@ -225,7 +275,7 @@
 		flank: flankLength
             };
 	    
-            $('.identifier_results').empty();
+	    $('.location_results').empty();
             $('.error').empty();
 
 	    // Run the query

@@ -2,11 +2,7 @@
   "name": "getsequence-app",
   "private": true,
   "dependencies": {
-      "underscore": "~1.8.3",
-      "datatables-bootstrap3": "*",
-      "datatables": "~1.10.7",
-      "biojs-vis-sequence": "0.1.2",
-      "NtSeq": "1.0.9"
-      
+      "biojs-vis-sequence": "https://github.com/alexkalderimis/biojs-vis-sequence.git",
+      "NtSeq": "https://github.com/msarmien/NtSeq.git"
   }
 }

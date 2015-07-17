@@ -7,26 +7,26 @@
       <li id="t_identifier"><a href="#d_identifier" role="tab" data-toggle="tab">Search by Identifier</a></li>
       <li id="t_location"><a href="#d_location" role="tab" data-toggle="tab">Search by Genome Location</a></li>
     </ul>
-
-
+    
     <div id="ev_tab_content" class="tab-content">
-      <div class="tab-pane" id="d_about">
+      
+      <div class="tab-pane active" id="d_about">
         <div class="container">
 	  <h4>Retrieve a sequence from A. thaliana Col-0 genome</h4>
           <blockquote>
             <p>Get a sequence by searching with a gene locus id or by providing a genome coordinate. This app uses the <a href="https://github.com/keithwhor/NtSeq">NtSeq</a> library for the sequence manipulations and the <a href="http://biojs.io/d/biojs-vis-sequence">BioJS Sequence Component</a> to display the sequences in various formats. The sequences are retrieved with one of Araport's <a href="https://github.com/Arabidopsis-Information-Portal/Get_Sequence_API">Get_Sequence</a> APIs. </p>
-	      <p><small>Genome Sequence Source: TAIR10</small></p>
+	    <p><small>Genome Sequence Source: TAIR10</small></p>
             
           </blockquote>
         </div>
       </div>
 
-      <div class="tab-pane active" id="d_identifier">
+      <div class="tab-pane" id="d_identifier">
 	<h4>Enter a gene identifier:</h4>
         <form name="identifier_search_form" role="form">
           <div class="form-group col-xs-3">
             <label for="geneIdentifier" class="control-label"></label>
-            <input type="text" name="geneIdentifier" id="geneIdentifier" value="AT1G33930" class="form-control" placeholder="AT1G33930"/>
+            <input type="text" name="geneIdentifier" id="geneIdentifier" value="AT1G01210" class="form-control" placeholder="AT1G01210" />
 	    <p><small>e.g. AT1G33930, AT1G01460, AT4G19020</small></p>
           </div>
 	  <div class="form-group col-xs-2">
@@ -55,14 +55,15 @@
             <button type="button" class="btn btn-danger" id="identifier_search_form_reset">Clear</button>
 	  </div>	  
 	</form>
-	<br /><br />	
+	<br /><br />
+	<div class="error"></div>
+	<div id="wait_region" class="wait_region"></div><br />
 	<div id="identifier_results" class="identifier_results"></div>
 	<button title="FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence">DOWNLOAD</button>
-
-	<br />
+	<br /><br /><br />
       </div>
 
-      <div class="tab-pane active" id="d_location">
+      <div class="tab-pane" id="d_location">
 	<h4>Enter the coordinates:</h4>
 	<br>
 	
@@ -85,13 +86,13 @@
 	  <div class="form-group col-xs-2">
 	    <b>Enter Start:</b>
             <label for="startCoordinate" class="control-label"></label>
-            <input type="text" name="startCoordinate" id="startCoordinate" value="1" class="form-control" placeholder="1" size="3" required/>
+            <input type="text" name="startCoordinate" id="startCoordinate" value="1" class="form-control" placeholder="1" size="3" />
 	  </div>
 	  
 	  <div class="form-group col-xs-2">
 	    <b>Enter End:</b>
             <label for="endCoordinate" class="control-label"></label>
-            <input type="text" name="endCoordinate" id="endCoordinate" value="1000" class="form-control" placeholder="1000" size="3" required/>
+            <input type="text" name="endCoordinate" id="endCoordinate" value="1000" class="form-control" placeholder="1000" size="3" />
           </div>
 	  
 	  <div class="form-group col-xs-2">
@@ -125,15 +126,14 @@
 	  
 	</form>
 	<br /><br />
+	<div class="error"></div>
+	<div id="wait_region2" class="wait_region2"></div><br />
 	<div id="location_results" class="location_results"></div>
 	<button title="FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence2">DOWNLOAD</button>
-	<br />
+	<br /><br /><br />
       </div>
-  
+      
     </div>
-    <div class="error"></div>
     <br />
-  </div>
-  
-  
+  </div>  
 </div>
