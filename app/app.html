@@ -2,7 +2,7 @@
   <div id="sequence_viewer">
     <ul id="ev_tabs" class="nav nav-tabs" role="tablist">
       <li id="t_about" class="active"><a href="#d_about" role="tab" data-toggle="tab">About</a></li>
-      <li id="t_identifier"><a href="#d_identifier" role="tab" data-toggle="tab">Search by Identifier</a></li>
+      <li id="t_identifier"><a href="#d_identifier" role="tab" data-toggle="tab">Search by Gene Identifier</a></li>
       <li id="t_location"><a href="#d_location" role="tab" data-toggle="tab">Search by Genome Location</a></li>
     </ul>
     
@@ -25,44 +25,44 @@
           <div class="form-group col-xs-3">
             <label for="geneIdentifier" class="control-label"></label>
             <input type="text" name="geneIdentifier" id="geneIdentifier" value="AT1G01210" class="form-control" placeholder="AT1G01210" />
-	    <p><small>e.g. AT1G33930, AT1G01460, AT4G19020</small></p>
+	    <p><small>e.g AT1G33930, AT1G01460, AT4G19020</small></p>
           </div>
+
 	  <div class="form-group col-xs-2">
-	    <b>Add flanking region:</b>
-            <select name="flankLen" id="flankLen" class="form-control">
-	      <option value="0">None</option>
-	      <option value="50">50 bp</option>
-	      <option value="100">100 bp</option>
-	      <option value="250">250 bp</option>
-              <option value="500">500 bp</option>
-              <option value="1000">1000 bp</option>
-              <option value="2000">2000 bp</option>
-              <option value="3000">3000 bp</option>
-              <option value="4000">4000 bp</option>
-            </select>
-	  </div>
-	  
-	  <div class="form-group col-xs-2">
-	    <b>Reverse Complement</b>
-            <label for="revComp" class="control-label"></label>
-            <input type="checkbox" name="revComp" id="revComp" value="0" class="form-control"/>
-	  </div>
-	  <br />
+	  <b>Select flanking region:</b>
+          <select name="flankLen" id="flankLen" class="form-control">
+	    <option value="0">None</option>
+	    <option value="50">50 bp</option>
+	    <option value="100">100 bp</option>
+	    <option value="250">250 bp</option>
+            <option value="500">500 bp</option>
+            <option value="1000">1000 bp</option>
+            <option value="2000">2000 bp</option>
+            <option value="3000">3000 bp</option>
+            <option value="4000">4000 bp</option>
+          </select>
+	</div>
+	  <br /><br /><br /><br /><br />
 	  <div class="form-group">
-            <button type="submit" class="btn btn-success">Submit</button>
-            <button type="button" class="btn btn-danger" id="identifier_search_form_reset">Clear</button>
+            <button type="submit" class="btn btn-success">Get Gene Sequence</button>
+            <button type="button" class="btn btn-danger" id="identifier_search_form_reset">Reset</button>
 	  </div>	  
 	</form>
 	<br /><br />
 	<div class="error"></div>
 	<div id="wait_region" class="wait_region"></div><br />
-	<div id="identifier_results" class="identifier_results"></div>
-	<button title="FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence">DOWNLOAD</button>
+
+	<div class="form-group col-xs-3">
+	  <div id="reverse_region"></div>
+	</div>
+	
+	<div id="identifier_results" class="identifier_results col-xs-10"></div>
 	<br /><br /><br />
       </div>
 
       <div class="tab-pane" id="d_location">
 	<h4>Enter the coordinates:</h4>
+	<h5>The requested sequence length cannot exceed 1000000 bp!</h5>
 	<br>
 	
         <form name="location_search_form" role="form">
@@ -92,42 +92,25 @@
             <label for="endCoordinate" class="control-label"></label>
             <input type="text" name="endCoordinate" id="endCoordinate" value="1000" class="form-control" placeholder="1000" size="3" />
           </div>
-	  
-	  <div class="form-group col-xs-2">
-	    <b>Add flanking region:</b>
-            <select name="flankLen2" id="flankLen2" class="form-control">
-	      <option value="0">None</option>
-	      <option value="50">50 bp</option>
-	      <option value="100">100 bp</option>
-	      <option value="250">250 bp</option>
-              <option value="500">500 bp</option>
-              <option value="1000">1000 bp</option>
-              <option value="2000">2000 bp</option>
-              <option value="3000">3000 bp</option>
-              <option value="4000">4000 bp</option>
-            </select>
-	  </div>
-	  
-	  <div class="form-group col-xs-2">
-	    <b>Reverse Complement</b>
-            <label for="revComp2" class="control-label"></label>
-            <input type="checkbox" name="revComp2" id="revComp2" value="0" class="form-control"/>
-	  </div>
 
-		  
-	  <br /><br /><br /><br />
+	  <br /><br /><br /><br /><br />
 	  
 	  <div class="form-group">
-            <button type="submit" class="btn btn-success">Submit</button>
-            <button type="button" class="btn btn-danger" id="location_search_form_reset">Clear</button>
+            <button type="submit" class="btn btn-success">Get Region Sequence</button>
+            <button type="button" class="btn btn-danger" id="location_search_form_reset">Reset</button>
 	  </div>
-	  
 	</form>
 	<br /><br />
-	<div class="error"></div>
+	
+	<div class="error2"></div>
 	<div id="wait_region2" class="wait_region2"></div><br />
-	<div id="location_results" class="location_results"></div>
-	<button title="FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence2">DOWNLOAD</button>
+	
+	<div class="form-group col-xs-3">
+	  <div id="reverse_region2"></div>
+	</div>
+	
+	<div id="location_results" class="location_results form-group col-xs-10"></div>
+
 	<br /><br /><br />
       </div>
       

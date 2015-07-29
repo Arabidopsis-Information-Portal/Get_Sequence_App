@@ -63,6 +63,32 @@ caption {
     visibility: hidden !important;
 }
 
-#revComp2 {
-    color: green;
+.revbox {
+    z-index: 100000;
+    position: relative;
+}
+
+.revCompButton {
+    height: 28px;
+    width: 110px;
+    margin-left:-18px;
+    font-size:12px;
+    border:none;
+    background: #a05ce0;
+    background-image: -webkit-linear-gradient(top, #a05ce0, #791ac7);
+    background-image: -moz-linear-gradient(top, #a05ce0, #791ac7);
+    background-image: -ms-linear-gradient(top, #a05ce0, #791ac7);
+    background-image: -o-linear-gradient(top, #a05ce0, #791ac7);
+    background-image: linear-gradient(to bottom, #a05ce0, #791ac7);
+    -webkit-border-radius: 4;
+    -moz-border-radius: 4;
+    border-radius: 4px;
+    color: #ffffff;
+    padding: 10px 15px 10px 25px;
+    text-decoration: none;
+}
+
+.revCompButton:hover {
+  background: purple;
+  text-decoration: none;
 }
