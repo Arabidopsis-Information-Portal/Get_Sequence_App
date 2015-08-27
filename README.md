@@ -1,4 +1,4 @@
-# Get-Sequence App 1.0
+# Get-Sequence App v2.0
 
 Retrieve a sequence from A. thaliana Col-0 genome
 
