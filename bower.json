@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "NtSeq": "https://github.com/msarmien/NtSeq.git",
-    "sequence-viewer": "https://github.com/msarmien/sequence-viewer.git"
+    "handlebars": "~3.0.3",
+    "sequence-viewer": "https://github.com/msarmien/sequence-viewer.git#~0.1.7"
   }
 }
