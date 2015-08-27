@@ -4,6 +4,6 @@
   "dependencies": {
     "NtSeq": "https://github.com/msarmien/NtSeq.git",
     "handlebars": "~3.0.3",
-    "sequence-viewer-2": "https://github.com/msarmien/sequence-viewer2.git"
+    "sequence-viewer2": "https://github.com/msarmien/sequence-viewer2.git"
   }
 }
