@@ -12,7 +12,7 @@
         <div class="container">
 	  <h4>Retrieve a sequence from A. thaliana Col-0 genome</h4>
           <blockquote>
-            <p>Get a sequence by searching with a gene locus id or by providing a genome coordinate. This app uses the <a href="https://github.com/keithwhor/NtSeq">NtSeq</a> library for the sequence manipulations and the <a href="http://biojs.io/d/biojs-vis-sequence">BioJS Sequence Component</a> to display the sequences in various formats. The sequences are retrieved with one of Araport's <a href="https://github.com/Arabidopsis-Information-Portal/Get_Sequence_API">Get_Sequence</a> APIs. </p>
+            <p>View a sequence by searching with a gene locus id or by providing a genome coordinate. This app uses the <a href="https://github.com/keithwhor/NtSeq">NtSeq</a> library for the sequence manipulations and the <a href="https://cdn.rawgit.com/calipho-sib/sequence-viewer/master/examples/index.html">BioJS Sequence Viewer Component</a> to display the sequences. The sequences are retrieved with one of Araport's <a href="https://github.com/Arabidopsis-Information-Portal/Get_Sequence_API">Get_Sequence</a> APIs.</p>
 	    <p><small>Genome Sequence Source: TAIR10</small></p>
             
           </blockquote>
@@ -49,12 +49,19 @@
 	  </div>	  
 	</form>
 	<br /><br />
+	
 	<div class="error"></div>
 	<div id="wait_region" class="wait_region"></div><br />
 
-	<div class="form-group col-xs-3">
-	  <div id="reverse_region"></div>
+	<div class="form-group col-xs-5x">
+	  <div id="reverse_region">
+	    <input type="checkbox" name="revComp" id="revComp" value="0" class="revbox" /><span class="revCompButton"><label for="revComp" class="control-label">Reverse Comp</label></span>&nbsp;&nbsp;
+	    <input type="checkbox" name="lowerCase" id="lowerCase" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase" class="control-label">Lowercase</label></span>&nbsp;&nbsp;
+	    <span id="download_region"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence">Download</button></span>&nbsp;&nbsp;
+	  </div>
 	</div>
+	
+
 	
 	<div id="identifier_results" class="identifier_results col-xs-10"></div>
 	<br /><br /><br />
@@ -105,8 +112,11 @@
 	<div class="error2"></div>
 	<div id="wait_region2" class="wait_region2"></div><br />
 	
-	<div class="form-group col-xs-3">
-	  <div id="reverse_region2"></div>
+	<div class="form-group col-xs-5">
+	  <div id="reverse_region2">
+	    <input type="checkbox" name="revComp2" id="revComp2" value="0" class="revbox" /><span class="revCompButton"><label for="revComp2" class="control-label"><b>Reverse Comp</b></label></span>&nbsp;&nbsp;
+	    <input type="checkbox" name="lowerCase2" id="lowerCase2" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase2" class="control-label">Lowercase</label></span>&nbsp;&nbsp;
+	    <span id="download_region2"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence2">Download</button></span></div>
 	</div>
 	
 	<div id="location_results" class="location_results form-group col-xs-10"></div>

@@ -13,11 +13,16 @@
 	var revComp = '';
 	var flankLength = 0;
 	var revSeq = false;
+	var lowerCase = false;
 	var chromosomeId = '';
 	var startCoordinate = 0;
 	var endCoordinate = 0;
-	var curr_id, curr_seq;
-
+	var curr_id, curr_seq; //for download purposes
+	var chromloc = '';
+	var sequenceIdentifier = 'Sequence';
+	var fullSequenceIdentifier = 'Sequence';
+	var orig_sequence='';
+	
 	var DEBUG = true;
 	var log = function log( message ) {
             if ( DEBUG ) {
@@ -27,7 +32,7 @@
 
 	// Start notification
 	var init = function init() {
-            log( 'Initializing app...' );
+            log( 'Initializing sequence app...' );
 	};	
 
 
@@ -65,44 +70,7 @@
 	    $('.error').empty();
 	    
 	    // Display the sequence
-	    mySequenceI = displaySequence(mySequenceI, returnedSequences[0], returnedSequences[1], "identifier_results");
-
-	    // Create Reverse Complement Button
-	    $('#reverse_region', appContext).html('<input type="checkbox" name="revComp" id="revComp" value="0" class="revbox" /><span class="revCompButton"><label for="revComp" class="control-label"><b>Reverse Comp</b></label></span>&nbsp;&nbsp;<span id="download_region"></span>');
-	    
-	    // Create download button
-	    $('#download_region', appContext).html('<button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence">Download</button>');
-	    
-	    // If the reverse complement button is checked
-	    $('#revComp').on('click', function() {
-		revSeq = $("#revComp").is(":checked");
-
-		if ( revSeq === true ){
-		    var reversedArray = processRevComp(returnedSequences[0], returnedSequences[2], returnedSequences[3], returnedSequences[4]);
-		    mySequenceI = displaySequence(mySequenceI, reversedArray[0], reversedArray[1], "identifier_results");
-		} else {
-		    mySequenceI = displaySequence(mySequenceI, returnedSequences[0], returnedSequences[1], "identifier_results");
-		}
-	    });
-
-	    $('#download_sequence').on('click', function() {
-
-		var content = '>' + curr_id + '\n' + curr_seq;
-		var dl = document.createElement('a');
-		dl.setAttribute('id', 'sequence.txt');
-		dl.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(content));
-		dl.setAttribute('download', 'sequence.txt');
-		
-		// Set hidden so the element doesn't disrupt your page
-		dl.setAttribute('visibility', 'hidden');
-		dl.setAttribute('display', 'none');
-		
-		// Append to page
-		document.body.appendChild(dl);
-		
-		// Now you can trigger the click
-		dl.click();
-	    });	    
+	    mySequenceI = displaySequence(mySequenceI, returnedSequences[0], returnedSequences[1], "#identifier_results", IUID);	      
 	}
 	
 	
@@ -124,44 +92,7 @@
 	    $('.error2').empty();
 	    
 	    // Display the sequence
-	    mySequenceL = displaySequence(mySequenceL, returnedSequences[0], returnedSequences[1], "location_results");
-
-	    // Create Reverse Complement Button
-	    $('#reverse_region2', appContext).html('<input type="checkbox" name="revComp2" id="revComp2" value="0" class="revbox" /><span class="revCompButton"><label for="revComp2" class="control-label"><b>Reverse Comp</b></label></span>&nbsp;&nbsp;<span id="download_region2"></span>');
-
-	    // Create download button
-	    $('#download_region2', appContext).html('<button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence2">Download</button>');
-	    
-	    // If the reverse complement button is checked
-	    $('#revComp2').on('click', function() {
-		revSeq = $("#revComp2").is(":checked");
-
-		if ( revSeq === true ){
-		    var reversedArray = processRevComp(returnedSequences[0], returnedSequences[2], returnedSequences[3], returnedSequences[4]);
-		    mySequenceL = displaySequence(mySequenceL, reversedArray[0], reversedArray[1], "location_results");
-		} else {
-		    mySequenceL = displaySequence(mySequenceL, returnedSequences[0], returnedSequences[1], "location_results");
-		}
-	    });
-
-	    $('#download_sequence2').on('click', function() {
-
-		var content = '>' + curr_id + '\n' + curr_seq;
-		var dl = document.createElement('a');
-		dl.setAttribute('id', 'sequence.txt');
-		dl.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(content));
-		dl.setAttribute('download', 'sequence.txt');
-		
-		// Set hidden so the element doesn't disrupt your page
-		dl.setAttribute('visibility', 'hidden');
-		dl.setAttribute('display', 'none');
-		
-		// Append to page
-		document.body.appendChild(dl);
-		
-		// Now you can trigger the click
-		dl.click();
-	    });	    
+	    mySequenceL = displaySequence(mySequenceL, returnedSequences[0], returnedSequences[1], "#location_results", LUID);
 	}
 	
 	
@@ -182,12 +113,17 @@
 	    
 	    var end = data.result[0].end;
 	    var chromosome = data.result[0].chromosome;
-	    var id =  'Sequence ' + 'Location=' + chromosome + '..' + start + '-' + end + ' ReverseComplemented=False' + ' FlankLength=' + flankLength;
+	    var id =  'Sequence ' + ' Location=' + chromosome + '..' + start + '-' + end + ' ReverseComplemented=false' + ' FlankLength=' + flankLength;
 
 	    // return sequences and ids
-	    return [sequence,id,chromosome,start,end];
+	    orig_sequence = sequence.toUpperCase();
+	    
+	    chromosomeId = chromosome;
+	    startCoordinate = start;
+	    endCoordinate = end;
+	    chromloc = chromosome + '..' + start + '-' + end;
+	    return [orig_sequence,id,chromosome,start,end];
 	}
-
 
 
 	/* - - - - - - - - - - - - - - - - - - - - - - */ 
@@ -198,30 +134,59 @@
 	    var loadSequence = new Nt.Seq();
 	    loadSequence.read(seq);
 	    var r_sequence = loadSequence.complement().sequence();
-	    var r_id = 'Sequence ' + 'Location=' + chr + '..' + start + '-' + end + ' ReverseComplemented=True' + ' FlankLength=' + flankLength;
-
+	    var r_id = sequenceIdentifier + ' Location=' + chr + '..' + start + '-' + end + ' ReverseComplemented=true' + ' FlankLength=' + flankLength;
+	    
 	    return [r_sequence,r_id];
 	}
 	
 	/* - - - - - - - - - - - - - - - - - - - - - - */ 
 	/* Display function for the sequence - - - - - */
 	/* - - - - - - - - - - - - - - - - - - - - - - */ 
-	function displaySequence(BioJsObj, seq, id, loc) {
+	function displaySequence(BioJsObj, seq, id, loc, uid) {
 	    
 	    // repopulate BioJS sequence object and display
 	    $('.wait_region2').empty();
-	    BioJsObj.clearSequence();
-	    BioJsObj = new Sequence({
-		sequence : seq,
-		target : loc,
-		format : 'FASTA',
-		numCols: 80,
-		id : id,
+	    fullSequenceIdentifier = id;
+
+	    BioJsObj = new Sequence(seq,sequenceIdentifier);
+	    BioJsObj.render(loc, {
+		'showLineNumbers': true,
+		'wrapAminoAcids': true,
+		'charsPerLine': 50,
+		'toolbar': true,
+		'search': true,
+		'id': uid,
+		'location': chromloc,
+		'flank': flankLength,
+		'revComp': revSeq
 	    });
 
-	    // Hide the formatter
-	    BioJsObj.hideFormatSelector();
+	    var seqlen = parseInt(endCoordinate) - parseInt(startCoordinate);
+	    if( flankLength > 0 ) {
+		var fstart_b = 0;
+		var fend_b = parseInt(flankLength);
+		var fstart_e = parseInt(seqlen) - parseInt(flankLength);
+		var fend_e = seqlen;
 
+		var seqstart = parseInt(fend_b);
+		var seqend = fstart_e;
+		var flankCoverage = [
+		    {start: fstart_b, end: fend_b, color: '#6E6E6E', underscore: false},
+		    {start: seqstart, end: seqend, color: 'black', underscore: false},
+		    {start: fstart_e, end: fend_e, color: '#6E6E6E', underscore: false}
+		];
+
+		//Define Legend and color codes
+		var flankLegend = [
+		    {name: 'Target Sequence', color: 'black', underscore: false},
+		    {name: 'Flanking sequence', color: '#BDBDBD', underscore: false}
+		];
+
+		BioJsObj.coverage(flankCoverage);
+		BioJsObj.addLegend(flankLegend);
+	    }
+	    
+	    
 	    curr_id = id;
 	    curr_seq = seq;
 	    
@@ -241,95 +206,130 @@
 	/* Start here */
 	/* - - - - -  */
 	init();
-
-	// Initialize a BioJs sequence
-	var mySequenceI = new Sequence({
-	    sequence : '\n\n\n\n\n\n',
-	    target : 'identifier_results',
-	    format : 'FASTA',
-	    numCols: 60,
-	    id : 'Sequence',
-	});
-	mySequenceI.hideFormatSelector();
 	
-	var mySequenceL = new Sequence({
-	    sequence : '\n\n\n\n\n\n',
-	    target : 'location_results',
-	    format : 'FASTA',
-	    numCols: 60,
-	    id : 'Sequence',
+	// define example data upon first launch of the app and reset
+	var example_id = 'AT1G01210';
+	var example_id2 = 'Sequence';
+	var example_sequence = 'AGAATGTTGAAGAAACAGAAACTTAGGGTTTATGTGGTGGATGAATGATTTAGCAGCGAATTGAAGGGTGTGGTGGAAGATGGAGTTTTGTCCAACATGTGGGAATCTGTTGCGATACGAGGGAGGTGGCAATTCGAGATTCTTCTGTTCCACATGTCCATACGTCGCCTACATCCAAAGACAGGTTCTTTTTTCAATTATATACCTTTTGAAAGTTTGTGAGCAAACCGTTAAAATTCTCTCCTCTGTTCCTGAGTGCTTTGGAATTTTGACAGGTGGAGATAAAGAAGAAGCAACTTCTGGTTAAGAAATCTATAGAAGCTGTTGTGACTAAAGATGATATACCCACAGCTGCTGAAACTGAAGGTATTTTCAGTCTCTTGTCTTCTCTTCTTCTAATTTTAGGACTGTGATGAGTTGGTTCAGAGTTGATCTCACTTGGGGAAAGAGTAGAGTAGACTTTTGTTTCACTTTCTTTCTCATGTTGGGATTGTTTGGTTTTAACAGCCCCATGTCCAAGGTGTGGCCACGACAAGGCATACTTCAAATCAATGCAGATTCGTTCAGCAGATGAGCCAGAATCAAGATTTTATAGATGCTTGAAGTGCGAGTTCACTTGGCGTGAGGAATGAACTGACTGATGATCATCTTCTCCGTCTCTTTGCCTCTGCCAATTTTGAAAGTTTCTACTTTTGCAACCTTCTTAGAGTTTGTTTTACCATTGCAAATTTAGCAGATCCTTTATGTACTCTGCTTCTTTCTGTCTCACAGCTCAATAGTTTCTGTTTCGATTAAATTTTGGAATGTTGTGCAAAGTTTTAATCTTTGAGGTGAAAGAGATGAAGCAA';
+
+	// insert initial example data into global variables
+	orig_sequence = example_sequence;
+	curr_seq = example_sequence;
+	chromosomeId = 'Chr1';
+	startCoordinate = 88897;
+	endCoordinate = 89745;
+	chromloc = 'Chr1..' + startCoordinate + '-' + endCoordinate;
+	sequenceIdentifier = example_id;
+	fullSequenceIdentifier = example_id + ' Location=Chr1..88897-89745 ReverseComplemented=False FlankLength=0';
+	
+	//identifiers to make the html ids of Sequence-Viewer Configuration unique
+	var IUID = 'I001';
+	var LUID = 'L001';
+	
+	// Initialize a BioJs sequence for Search By Identifier tab
+	var mySequenceI = new Sequence(example_sequence,example_id);
+	mySequenceI.render('#identifier_results', {
+	    'showLineNumbers': true,
+	    'wrapAminoAcids': true,
+	    'charsPerLine': 50,
+	    'toolbar': true,
+	    'search': true,
+	    'id': IUID,
+	    'location': chromloc,
+	    'flank': 0,
+	    'revComp': false
 	});
-	mySequenceL.hideFormatSelector();
+
+	// Initialize a BioJs sequence for Search By Genome Location tab
+	var mySequenceL = new Sequence(example_sequence,example_id2);
+	mySequenceL.render('#location_results', {
+	    'showLineNumbers': true,
+	    'wrapAminoAcids': true,
+	    'charsPerLine': 50,
+	    'toolbar': true,
+	    'search': true,
+	    'id': LUID,
+	    'location': chromloc,
+	    'flank': 0,
+	    'revComp': false
+	});
+
 	
 	// Setup clear button functions
 	$('#identifier_search_form_reset').on('click', function() {
             $('.error').empty();
 	    $('.wait_region').empty();
-            $('.identifier_results').empty();
+            $('#identifier_results').empty();
             $('#geneIdentifier').val('AT1G01210');
 	    $('#flankLen').val('0');
 	    $("#revComp").prop("checked", false);
-	    $('#download_region').empty();
-	    $('#reverse_region').empty();
+	    $("#lowerCase").prop("checked", false);
+
+	    // reset to initial example
+	    sequenceIdentifier = example_id;
+	    fullSequenceIdentifier = example_id + ' Location=Chr1..88897-89745 ReverseComplemented=False FlankLength=0';
+	    curr_seq = example_sequence;
+	    orig_sequence = example_sequence;
+	    chromosomeId = 'Chr1';
+	    startCoordinate = 88897;
+	    endCoordinate = 89745;
+	    chromloc = 'Chr1..' + startCoordinate + '-' + endCoordinate;
 	    
-	    mySequenceI.clearSequence();
-	    mySequenceI = new Sequence({
-		sequence : '\n\n\n\n\n\n',
-		target : 'identifier_results',
-		format : 'FASTA',
-		numCols: 60,
-		id : 'Sequence',
+	    mySequenceI = new Sequence(example_sequence,example_id);
+	    mySequenceI.render('#identifier_results', {
+		'showLineNumbers': true,
+		'wrapAminoAcids': true,
+		'charsPerLine': 50,
+		'toolbar': true,
+		'search': true,
+		'id': IUID,
+		'location': chromloc,
+		'flank': 0,
+		'revComp': false
 	    });
-	    mySequenceI.hideFormatSelector();
 	});
 	
 	$('#location_search_form_reset').on('click', function() {
             $('.error2').empty();
 	    $('.wait_region2').empty();
-            $('.location_results').empty();
+            $('#location_results').empty();
             $('#chromosomeId').val('Chr1');
             $('#startCoordinate').val('1');
 	    $('#endCoordinate').val('1000');
 	    $("#revComp2").prop("checked", false);
-	    $('#download_region2').empty();
-	    $('#reverse_region2').empty();
+	    $("#lowerCase2").prop("checked", false);
 	    
-	    mySequenceL.clearSequence();
-	    mySequenceL = new Sequence({
-		sequence : '\n\n\n\n\n\n',
-		target : 'location_results',
-		format : 'FASTA',
-		numCols: 60,
-		id : 'Sequence',
+	    sequenceIdentifier = example_id2;
+	    fullSequenceIdentifier = example_id2 + ' Location=Chr1..88897-89745 ReverseComplemented=False FlankLength=0';
+	    curr_seq = example_sequence;
+	    orig_sequence = example_sequence;
+	    chromosomeId = 'Chr1';
+	    startCoordinate = 88897;
+	    endCoordinate = 89745;
+	    chromloc = 'Chr1..' + startCoordinate + '-' + endCoordinate;
+	    
+	    mySequenceL = new Sequence(example_sequence,example_id2);
+	    mySequenceL.render('#location_results', {
+		'showLineNumbers': true,
+		'wrapAminoAcids': true,
+		'charsPerLine': 50,
+		'toolbar': true,
+		'search': true,
+		'id': LUID,
+		'location': chromloc,
+		'flank': 0,
+		'revComp': false
 	    });
-	    mySequenceL.hideFormatSelector();
 	});
-
-
-	// Setup the download buttons
-	$('#download_sequence').on('click', function(e) {
-	    e.preventDefault();
-	    var content = '>' + new_id + '\n' + j_sequence;
-	    var dl = document.createElement('a');
-	    dl.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(content));
-	    dl.setAttribute('download', 'sequence.txt');
-
-	    // Set hidden so the element doesn't disrupt your page
-	    dl.setAttribute('visibility', 'hidden');
-	    dl.setAttribute('display', 'none');
-
-	    // Append to page
-	    document.body.appendChild(dl);
-
-	    // Now you can trigger the click
-	    dl.click();
-	});
-
 	
 	// Setup submit button functions which call the main wrapper function
 	$('form[name=identifier_search_form]',appContext).on('submit',function(e){
-	    
-            log( 'Searching by identifier...' );
+
+	    log( 'Searching by identifier...' );
+
+	    // uncheck checkboxes
+	    $("#revComp").prop("checked", false);
+	    $("#lowerCase").prop("checked", false);
 	    
             e.preventDefault();
 	    
@@ -339,13 +339,13 @@
 
 	    // Assign input parameters to global variables
 	    geneIdentifier = this.geneIdentifier.value;
+	    sequenceIdentifier = geneIdentifier;
 	    flankLength = this.flankLen.value;
 	    
 	    // clear current display/errors
-	    $('.identifier_results').empty();
+	    $('#identifier_results').empty();
             $('.error').empty();
 	    $("#revComp").prop("checked", false);
-	    $('#download_region').empty();
 	    
 	    // setup query parameters
 	    var params = {
@@ -359,15 +359,15 @@
 		'service': 'get_sequence_by_identifier_v0.2',
 		'queryParams': params
 	    }, wrapperSequenceByIdentifier, showError);
-	    
-	    /* - - - */
-	    /* Done! */
-	    /* - - - */
 	});
 
 	$('form[name=location_search_form]',appContext).on('submit',function(e){
 
 	    log( 'Searching by coordinate...' );
+
+	    // uncheck checkboxes
+	    $("#revComp2").prop("checked", false);
+	    $("#lowerCase2").prop("checked", false);
 	    
             e.preventDefault();
 
@@ -378,12 +378,12 @@
 	    startCoordinate = this.startCoordinate.value;
 	    endCoordinate = this.endCoordinate.value;
 	    revSeq = $("#revComp2").is(":checked");
-
+	    sequenceIdentifier = "Sequence";
+	    
 	    // clear current display/errors
-	    $('.location_results').empty();
+	    $('#location_results').empty();
             $('.error2').empty();
 	    $("#revComp2").prop("checked", false);
-	    $('#download_region2').empty();
 	    
 	    // setup query parameters
 	    var params = {
@@ -414,12 +414,170 @@
 		// Do not execute
 		$('.error2', appContext).html('<div class="alert alert-danger">The requested sequence size exceeds the maximum!</div>');
 	    }
-	    
-	    /* - - - */
-	    /* Done! */
-	    /* - - - */
-	}); 
+	});
+
 	
+	// If the reverse complement button is checked
+	$('#revComp').on('click', function() {
+	    revSeq = $("#revComp").is(":checked");
+	    lowerCase = $("#lowerCase").is(":checked");
+	    
+	    var lowerCaseSeq = '';
+	    
+	    if ( revSeq === true ){
+		
+		var reversedArray = processRevComp(orig_sequence,chromosomeId,startCoordinate,endCoordinate);
+		
+		if( lowerCase === true) {
+		    lowerCaseSeq = reversedArray[0].toLowerCase();
+		    mySequenceI = displaySequence(mySequenceI, lowerCaseSeq, reversedArray[1], "#identifier_results", IUID);
+		}else {
+		    mySequenceI = displaySequence(mySequenceI, reversedArray[0], reversedArray[1], "#identifier_results", IUID);
+		}
+
+	    } else {
+
+		fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + startCoordinate + '-' + endCoordinate + ' ReverseComplemented=false' + ' FlankLength=' + flankLength;
+		
+		if( lowerCase === true) {
+		    lowerCaseSeq = orig_sequence.toLowerCase();
+		    mySequenceI = displaySequence(mySequenceI, lowerCaseSeq, fullSequenceIdentifier, "#identifier_results", IUID);
+		}else {
+		    mySequenceI = displaySequence(mySequenceI, orig_sequence, fullSequenceIdentifier, "#identifier_results", IUID);
+		}
+	    }
+	});
+	
+	$('#download_sequence').on('click', function() {
+	    
+	    var content = '>' + fullSequenceIdentifier + '\n' + curr_seq;
+	    var dl = document.createElement('a');
+	    dl.setAttribute('id', 'sequence.txt');
+	    dl.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(content));
+	    dl.setAttribute('download', 'sequence.txt');
+	    
+	    // Set hidden so the element doesn't disrupt your page
+	    dl.setAttribute('visibility', 'hidden');
+	    dl.setAttribute('display', 'none');
+	    
+	    // Append to page
+	    document.body.appendChild(dl);
+	    
+	    // Now you can trigger the click
+	    dl.click();
+	});	  
+
+	
+	// If the reverse complement button is checked
+	$('#lowerCase').on('click', function() {
+	    lowerCase = $("#lowerCase").is(":checked");
+	    revSeq = $("#revComp").is(":checked");
+	    
+	    var lowerCaseSeq = '';
+	    
+	    if ( lowerCase === true ){
+
+		if(revSeq === true) {
+		    var reversedArray = processRevComp(orig_sequence,chromosomeId,startCoordinate,endCoordinate);
+		    lowerCaseSeq = reversedArray[0].toLowerCase();
+		    mySequenceI = displaySequence(mySequenceI, lowerCaseSeq, reversedArray[1], "#identifier_results", IUID);
+		}else{
+		    lowerCaseSeq = orig_sequence.toLowerCase();
+		    mySequenceI = displaySequence(mySequenceI, lowerCaseSeq, fullSequenceIdentifier, "#identifier_results", IUID);
+		}
+	    } else {
+		if(revSeq === true) {
+		    var reversedArray = processRevComp(orig_sequence,chromosomeId,startCoordinate,endCoordinate);
+		    mySequenceI = displaySequence(mySequenceI, reversedArray[0], reversedArray[1], "#identifier_results", IUID);
+		}else{
+		    mySequenceI = displaySequence(mySequenceI, orig_sequence, fullSequenceIdentifier, "#identifier_results", IUID);
+		}
+	    }
+	});
+
+
+	
+	// If the reverse complement button is checked
+	$('#revComp2').on('click', function() {
+	    revSeq = $("#revComp2").is(":checked");
+	    lowerCase = $("#lowerCase2").is(":checked");
+	    
+	    var lowerCaseSeq = '';
+	    
+	    if ( revSeq === true ){
+		
+		var reversedArray = processRevComp(orig_sequence,chromosomeId,startCoordinate,endCoordinate);
+		
+		if( lowerCase === true) {
+		    lowerCaseSeq = reversedArray[0].toLowerCase();
+		    mySequenceL = displaySequence(mySequenceL, lowerCaseSeq, reversedArray[1], "#location_results", LUID);
+		}else {
+		    mySequenceL = displaySequence(mySequenceL, reversedArray[0], reversedArray[1], "#location_results", LUID);
+		}
+
+	    } else {
+
+		fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + startCoordinate + '-' + endCoordinate + ' ReverseComplemented=false' + ' FlankLength=' + flankLength;
+		
+		if( lowerCase === true) {
+		    lowerCaseSeq = orig_sequence.toLowerCase();
+		    mySequenceL = displaySequence(mySequenceL, lowerCaseSeq, fullSequenceIdentifier, "#location_results", LUID);
+		}else {
+		    mySequenceL = displaySequence(mySequenceL, orig_sequence, fullSequenceIdentifier, "#location_results", LUID);
+		}
+	    }
+	});
+	
+	$('#download_sequence2').on('click', function() {
+	    
+	    var content = '>' + fullSequenceIdentifier + '\n' + curr_seq;
+	    var dl = document.createElement('a');
+	    dl.setAttribute('id', 'sequence.txt');
+	    dl.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(content));
+	    dl.setAttribute('download', 'sequence.txt');
+	    
+	    // Set hidden so the element doesn't disrupt your page
+	    dl.setAttribute('visibility', 'hidden');
+	    dl.setAttribute('display', 'none');
+	    
+	    // Append to page
+	    document.body.appendChild(dl);
+	    
+	    // Now you can trigger the click
+	    dl.click();
+	});
+	    
+
+	// If the reverse complement button is checked
+	$('#lowerCase2').on('click', function() {
+	    lowerCase = $("#lowerCase2").is(":checked");
+	    revSeq = $("#revComp2").is(":checked");
+	    
+	    var lowerCaseSeq = '';
+	    
+	    if ( lowerCase === true ){
+
+		if(revSeq === true) {
+		    var reversedArray = processRevComp(orig_sequence,chromosomeId,startCoordinate,endCoordinate);
+		    lowerCaseSeq = reversedArray[0].toLowerCase();
+		    mySequenceL = displaySequence(mySequenceL, lowerCaseSeq, reversedArray[1], "#location_results", LUID);
+		}else{
+		    lowerCaseSeq = orig_sequence.toLowerCase();
+		    mySequenceL = displaySequence(mySequenceL, lowerCaseSeq, fullSequenceIdentifier, "#location_results", LUID);
+		}
+	    } else {
+		if(revSeq === true) {
+		    var reversedArray = processRevComp(orig_sequence,chromosomeId,startCoordinate,endCoordinate);
+		    mySequenceL = displaySequence(mySequenceL, reversedArray[0], reversedArray[1], "#location_results", LUID);
+		}else{
+		    mySequenceL = displaySequence(mySequenceL, orig_sequence, fullSequenceIdentifier, "#location_results", LUID);
+		}
+	    }
+	});
+	
+	/* - - - */
+	/* Done! */
+	/* - - - */
     });
     
 })(window, jQuery);

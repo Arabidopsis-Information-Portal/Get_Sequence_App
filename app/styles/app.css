@@ -74,12 +74,7 @@ caption {
     margin-left:-18px;
     font-size:12px;
     border:none;
-    background: #a05ce0;
-    background-image: -webkit-linear-gradient(top, #a05ce0, #791ac7);
-    background-image: -moz-linear-gradient(top, #a05ce0, #791ac7);
-    background-image: -ms-linear-gradient(top, #a05ce0, #791ac7);
-    background-image: -o-linear-gradient(top, #a05ce0, #791ac7);
-    background-image: linear-gradient(to bottom, #a05ce0, #791ac7);
+    background: #a05ce0;;
     -webkit-border-radius: 4;
     -moz-border-radius: 4;
     border-radius: 4px;
@@ -90,5 +85,45 @@ caption {
 
 .revCompButton:hover {
   background: purple;
+  text-decoration: none;
+}
+
+.lowerCaseButton {
+    height: 28px;
+    width: 110px;
+    margin-left:-18px;
+    font-size:12px;
+    border:none;
+    background: #848484;
+    -webkit-border-radius: 4;
+    -moz-border-radius: 4;
+    border-radius: 4px;
+    color: #ffffff;
+    padding: 10px 15px 10px 25px;
+    text-decoration: none;
+}
+
+.lowerCaseButton:hover {
+  background: #424242;
+  text-decoration: none;
+}
+
+.translateButton {
+    height: 28px;
+    width: 110px;
+    margin-left:-18px;
+    font-size:12px;
+    border:none;
+    background: #FE9A2E;
+    -webkit-border-radius: 4;
+    -moz-border-radius: 4;
+    border-radius: 4px;
+    color: #ffffff;
+    padding: 10px 15px 10px 25px;
+    text-decoration: none;
+}
+
+.translateButton:hover {
+  background: #B45F04;
   text-decoration: none;
 }

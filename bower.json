@@ -2,7 +2,7 @@
   "name": "getsequence-app",
   "private": true,
   "dependencies": {
-      "biojs-vis-sequence": "https://github.com/alexkalderimis/biojs-vis-sequence.git",
-      "NtSeq": "https://github.com/msarmien/NtSeq.git"
+    "NtSeq": "https://github.com/msarmien/NtSeq.git",
+    "sequence-viewer": "https://github.com/msarmien/sequence-viewer.git"
   }
 }
