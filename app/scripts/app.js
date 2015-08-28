@@ -113,7 +113,7 @@
 	    
 	    var end = data.result[0].end;
 	    var chromosome = data.result[0].chromosome;
-	    var id =  'Sequence ' + ' Location=' + chromosome + '..' + start + '-' + end + ' ReverseComplemented=false' + ' FlankLength=' + flankLength;
+	    var id =  'Sequence ' + ' Location=' + chromosome + '..' + start + '-' + end + ' ReverseComplemented=false';
 
 	    // return sequences and ids
 	    orig_sequence = sequence.toUpperCase();
@@ -134,7 +134,7 @@
 	    var loadSequence = new Nt.Seq();
 	    loadSequence.read(seq);
 	    var r_sequence = loadSequence.complement().sequence();
-	    var r_id = sequenceIdentifier + ' Location=' + chr + '..' + start + '-' + end + ' ReverseComplemented=true' + ' FlankLength=' + flankLength;
+	    var r_id = sequenceIdentifier + ' Location=' + chr + '..' + start + '-' + end + ' ReverseComplemented=true';
 	    
 	    return [r_sequence,r_id];
 	}
@@ -146,8 +146,14 @@
 	    
 	    // repopulate BioJS sequence object and display
 	    $('.wait_region2').empty();
-	    fullSequenceIdentifier = id;
 
+	    if(loc === '#identifier_results'){
+		fullSequenceIdentifier = id + ' FlankLength=' + flankLength;
+	    }else{
+		fullSequenceIdentifier = id + ' FlankLength=0';
+		flankLength=0;
+	    }
+	    
 	    BioJsObj = new Sequence($,seq,sequenceIdentifier);
 	    BioJsObj.render(loc, {
 		'showLineNumbers': true,
@@ -162,7 +168,8 @@
 	    });
 
 	    var seqlen = parseInt(endCoordinate) - parseInt(startCoordinate);
-	    if( flankLength > 0 ) {
+	    if( flankLength > 0 && loc === '#identifier_results') {
+
 		var fstart_b = 0;
 		var fend_b = parseInt(flankLength);
 		var fstart_e = parseInt(seqlen) - parseInt(flankLength);
@@ -171,15 +178,15 @@
 		var seqstart = parseInt(fend_b);
 		var seqend = fstart_e;
 		var flankCoverage = [
-		    {start: fstart_b, end: fend_b, color: '#6E6E6E', underscore: false},
+		    {start: fstart_b, end: fend_b, color: '#33CCCC', underscore: false},
 		    {start: seqstart, end: seqend, color: 'black', underscore: false},
-		    {start: fstart_e, end: fend_e, color: '#6E6E6E', underscore: false}
+		    {start: fstart_e, end: fend_e, color: '#33CCCC', underscore: false}
 		];
 
 		//Define Legend and color codes
 		var flankLegend = [
 		    {name: 'Target Sequence', color: 'black', underscore: false},
-		    {name: 'Flanking sequence', color: '#BDBDBD', underscore: false}
+		    {name: 'Flanking sequence', color: '#33CCCC', underscore: false}
 		];
 
 		BioJsObj.coverage(flankCoverage);
@@ -187,7 +194,7 @@
 	    }
 	    
 	    
-	    curr_id = id;
+	    curr_id = fullSequenceIdentifier;
 	    curr_seq = seq;
 	    
 	    return BioJsObj;
@@ -437,7 +444,7 @@
 
 	    } else {
 
-		fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + startCoordinate + '-' + endCoordinate + ' ReverseComplemented=false' + ' FlankLength=' + flankLength;
+		fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + startCoordinate + '-' + endCoordinate + ' ReverseComplemented=false';
 		
 		if( lowerCase === true) {
 		    lowerCaseSeq = orig_sequence.toLowerCase();
@@ -517,7 +524,7 @@
 
 	    } else {
 
-		fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + startCoordinate + '-' + endCoordinate + ' ReverseComplemented=false' + ' FlankLength=' + flankLength;
+		fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + startCoordinate + '-' + endCoordinate + ' ReverseComplemented=false';
 		
 		if( lowerCase === true) {
 		    lowerCaseSeq = orig_sequence.toLowerCase();
