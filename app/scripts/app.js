@@ -148,7 +148,7 @@
 	    $('.wait_region2').empty();
 	    fullSequenceIdentifier = id;
 
-	    BioJsObj = new Sequence(seq,sequenceIdentifier);
+	    BioJsObj = new Sequence($,seq,sequenceIdentifier);
 	    BioJsObj.render(loc, {
 		'showLineNumbers': true,
 		'wrapAminoAcids': true,
@@ -227,7 +227,7 @@
 	var LUID = 'L001';
 	
 	// Initialize a BioJs sequence for Search By Identifier tab
-	var mySequenceI = new Sequence(example_sequence,example_id);
+	var mySequenceI = new Sequence($,example_sequence,example_id);
 	mySequenceI.render('#identifier_results', {
 	    'showLineNumbers': true,
 	    'wrapAminoAcids': true,
@@ -241,7 +241,7 @@
 	});
 
 	// Initialize a BioJs sequence for Search By Genome Location tab
-	var mySequenceL = new Sequence(example_sequence,example_id2);
+	var mySequenceL = new Sequence($,example_sequence,example_id2);
 	mySequenceL.render('#location_results', {
 	    'showLineNumbers': true,
 	    'wrapAminoAcids': true,
@@ -275,7 +275,7 @@
 	    endCoordinate = 89745;
 	    chromloc = 'Chr1..' + startCoordinate + '-' + endCoordinate;
 	    
-	    mySequenceI = new Sequence(example_sequence,example_id);
+	    mySequenceI = new Sequence($,example_sequence,example_id);
 	    mySequenceI.render('#identifier_results', {
 		'showLineNumbers': true,
 		'wrapAminoAcids': true,
@@ -308,7 +308,7 @@
 	    endCoordinate = 89745;
 	    chromloc = 'Chr1..' + startCoordinate + '-' + endCoordinate;
 	    
-	    mySequenceL = new Sequence(example_sequence,example_id2);
+	    mySequenceL = new Sequence($,example_sequence,example_id2);
 	    mySequenceL.render('#location_results', {
 		'showLineNumbers': true,
 		'wrapAminoAcids': true,
