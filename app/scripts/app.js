@@ -107,13 +107,18 @@
 	    // Extract the sequence
 	    var sequence = data.result[0].sequence;	    
 	    var start = data.result[0].start;
-	    if(start === 0){
+	    var s_adjust;
+	    console.log(start);
+	    if(start < 1){
 		start = 1;
-	    }		
-	    
+		s_adjust = 1;
+	    }else{
+		s_adjust = start + 1;
+	    }
+
 	    var end = data.result[0].end;
 	    var chromosome = data.result[0].chromosome;
-	    var id =  'Sequence ' + ' Location=' + chromosome + '..' + start + '-' + end + ' ReverseComplemented=false';
+	    var id =  'Sequence ' + ' Location=' + chromosome + '..' + s_adjust + '-' + end + ' ReverseComplemented=false';
 
 	    // return sequences and ids
 	    orig_sequence = sequence.toUpperCase();
@@ -121,7 +126,7 @@
 	    chromosomeId = chromosome;
 	    startCoordinate = start;
 	    endCoordinate = end;
-	    chromloc = chromosome + '..' + start + '-' + end;
+	    chromloc = chromosome + '..' + s_adjust + '-' + end;
 	    return [orig_sequence,id,chromosome,start,end];
 	}
 
@@ -134,7 +139,17 @@
 	    var loadSequence = new Nt.Seq();
 	    loadSequence.read(seq);
 	    var r_sequence = loadSequence.complement().sequence();
-	    var r_id = sequenceIdentifier + ' Location=' + chr + '..' + start + '-' + end + ' ReverseComplemented=true';
+
+	    var s_adjust;
+
+	    if(start < 1 || startCoordinate == 1){
+		start = 1;
+		s_adjust = 1;
+	    }else{
+		s_adjust = start + 1;
+	    }
+	    
+	    var r_id = sequenceIdentifier + ' Location=' + chr + '..' + s_adjust + '-' + end + ' ReverseComplemented=true';
 	    
 	    return [r_sequence,r_id];
 	}
@@ -225,9 +240,9 @@
 	chromosomeId = 'Chr1';
 	startCoordinate = 88897;
 	endCoordinate = 89745;
-	chromloc = 'Chr1..' + startCoordinate + '-' + endCoordinate;
+	chromloc = 'Chr1..' + (startCoordinate+1) + '-' + endCoordinate;
 	sequenceIdentifier = example_id;
-	fullSequenceIdentifier = example_id + ' Location=Chr1..88897-89745 ReverseComplemented=False FlankLength=0';
+	fullSequenceIdentifier = example_id + ' Location=Chr1..88898-89745 ReverseComplemented=False FlankLength=0';
 	
 	//identifiers to make the html ids of Sequence-Viewer Configuration unique
 	var IUID = 'I001';
@@ -274,13 +289,13 @@
 
 	    // reset to initial example
 	    sequenceIdentifier = example_id;
-	    fullSequenceIdentifier = example_id + ' Location=Chr1..88897-89745 ReverseComplemented=False FlankLength=0';
+	    fullSequenceIdentifier = example_id + ' Location=Chr1..88898-89745 ReverseComplemented=False FlankLength=0';
 	    curr_seq = example_sequence;
 	    orig_sequence = example_sequence;
 	    chromosomeId = 'Chr1';
 	    startCoordinate = 88897;
 	    endCoordinate = 89745;
-	    chromloc = 'Chr1..' + startCoordinate + '-' + endCoordinate;
+	    chromloc = 'Chr1..' + (startCoordinate+1) + '-' + endCoordinate;
 	    
 	    mySequenceI = new Sequence($,example_sequence,example_id);
 	    mySequenceI.render('#identifier_results', {
@@ -307,13 +322,13 @@
 	    $("#lowerCase2").prop("checked", false);
 	    
 	    sequenceIdentifier = example_id2;
-	    fullSequenceIdentifier = example_id2 + ' Location=Chr1..88897-89745 ReverseComplemented=False FlankLength=0';
+	    fullSequenceIdentifier = example_id2 + ' Location=Chr1..88898-89745 ReverseComplemented=False FlankLength=0';
 	    curr_seq = example_sequence;
 	    orig_sequence = example_sequence;
 	    chromosomeId = 'Chr1';
 	    startCoordinate = 88897;
 	    endCoordinate = 89745;
-	    chromloc = 'Chr1..' + startCoordinate + '-' + endCoordinate;
+	    chromloc = 'Chr1..' + (startCoordinate+1) + '-' + endCoordinate;
 	    
 	    mySequenceL = new Sequence($,example_sequence,example_id2);
 	    mySequenceL.render('#location_results', {
@@ -430,6 +445,13 @@
 	    lowerCase = $("#lowerCase").is(":checked");
 	    
 	    var lowerCaseSeq = '';
+
+	    var s_adjust;
+	    if(startCoordinate < 1){
+		s_adjust = 1;
+	    }else{
+		s_adjust = startCoordinate + 1;
+	    }
 	    
 	    if ( revSeq === true ){
 		
@@ -444,7 +466,7 @@
 
 	    } else {
 
-		fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + startCoordinate + '-' + endCoordinate + ' ReverseComplemented=false';
+		fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + s_adjust + '-' + endCoordinate + ' ReverseComplemented=false';
 		
 		if( lowerCase === true) {
 		    lowerCaseSeq = orig_sequence.toLowerCase();
@@ -524,7 +546,15 @@
 
 	    } else {
 
-		fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + startCoordinate + '-' + endCoordinate + ' ReverseComplemented=false';
+		var s_adjust;
+
+		if(startCoordinate < 1){
+		    s_adjust = 1;
+		}else{
+		    s_adjust = startCoordinate + 1;
+		}
+		
+		fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + s_adjust + '-' + endCoordinate + ' ReverseComplemented=false';
 		
 		if( lowerCase === true) {
 		    lowerCaseSeq = orig_sequence.toLowerCase();
@@ -561,7 +591,7 @@
 	    revSeq = $("#revComp2").is(":checked");
 	    
 	    var lowerCaseSeq = '';
-	    
+
 	    if ( lowerCase === true ){
 
 		if(revSeq === true) {
@@ -573,6 +603,7 @@
 		    mySequenceL = displaySequence(mySequenceL, lowerCaseSeq, fullSequenceIdentifier, "#location_results", LUID);
 		}
 	    } else {
+		
 		if(revSeq === true) {
 		    var reversedArray = processRevComp(orig_sequence,chromosomeId,startCoordinate,endCoordinate);
 		    mySequenceL = displaySequence(mySequenceL, reversedArray[0], reversedArray[1], "#location_results", LUID);
