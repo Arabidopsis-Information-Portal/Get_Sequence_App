@@ -1,155 +1,197 @@
 <div class="science-app" data-app-name="getSequence-app">
-  <div id="sequence_viewer">
-    <ul id="ev_tabs" class="nav nav-tabs" role="tablist">
-      <li id="t_about" class="active"><a href="#d_about" role="tab" data-toggle="tab">About</a></li>
-      <li id="t_identifier"><a href="#d_identifier" role="tab" data-toggle="tab">Search by Gene Identifier</a></li>
-      <li id="t_location"><a href="#d_location" role="tab" data-toggle="tab">Search by Genome Location</a></li>
-    </ul>
+    <div id="sequence_viewer">
+        <ul id="ev_tabs" class="nav nav-tabs" role="tablist">
+            <li id="t_about" class="active"><a href="#d_about" role="tab" data-toggle="tab">About</a></li>
+            <li id="t_identifier"><a href="#d_identifier" role="tab" data-toggle="tab">Search by Gene Identifier</a></li>
+            <li id="t_location"><a href="#d_location" role="tab" data-toggle="tab">Search by Genome Location</a></li>
+            <li id="t_list"><a href="#d_list" role="tab" data-toggle="tab">Show Genes by Genome Location</a></li>
+        </ul>
 
-    <div class="error"></div>
+        <div class="error"></div>
 
-    <div id="ev_tab_content" class="tab-content">
-
-      <div class="tab-pane active" id="d_about">
-        <div class="container">
-      <h4>Retrieve a sequence from A. thaliana Col-0 genome</h4>
-          <blockquote>
-            <p>View a sequence by searching with a gene locus id or by providing a genome coordinate. This app uses the <a href="https://github.com/keithwhor/NtSeq">NtSeq</a> library for the sequence manipulations and the <a href="http://biojs.io/d/sequence-viewer">BioJS Sequence Viewer Component</a> to display the sequences. The sequences are retrieved with one of Araport's <a href="https://github.com/Arabidopsis-Information-Portal/Get_Sequence_API">Get_Sequence</a> APIs.</p>
-        <p><small>Genome Sequence Source: TAIR10</small></p>
-
-          </blockquote>
-        </div>
-      </div>
-
-      <div class="tab-pane" id="d_identifier">
-    <h4>Enter a gene identifier:</h4>
-        <form name="identifier_search_form" role="form">
-          <div class="form-group col-xs-3">
-            <label for="geneIdentifier" class="control-label"></label>
-            <input type="text" name="geneIdentifier" id="geneIdentifier" value="AT1G01210" class="form-control" placeholder="AT1G01210" />
-        <p><small>e.g AT1G33930</small></p>
-          </div>
-
-      <div class="form-group col-xs-2">
-      <b>Select flanking region:</b>
-          <select name="flankLen" id="flankLen" class="form-control">
-        <option value="0">None</option>
-        <option value="50">50 bp</option>
-        <option value="100">100 bp</option>
-        <option value="250">250 bp</option>
-            <option value="500">500 bp</option>
-            <option value="1000">1000 bp</option>
-            <option value="2000">2000 bp</option>
-            <option value="3000">3000 bp</option>
-            <option value="4000">4000 bp</option>
-          </select>
-    </div>
-      <br /><br /><br /><br /><br />
-      <div class="form-group">
-            <button type="submit" class="btn btn-success">Get Gene Sequence</button>
-            <button type="button" class="btn btn-danger" id="identifier_search_form_reset">Reset</button>
-      </div>
-    </form>
-    <br /><br />
-
-    <div id="wait_region" class="wait_region"></div><br />
-
-    <div class="form-inline">
-        <div class="form-group row">
-            <div id="reverse_region">
-                <input type="checkbox" name="revComp" id="revComp" value="0" class="revbox" /><span class="revCompButton"><label for="revComp" class="control-label">Reverse Complement</label></span>&nbsp;
-                <input type="checkbox" name="lowerCase" id="lowerCase" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase" class="control-label">Lowercase</label></span>
-                <span id="download_region"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence">Download</button></span>
-                <div class="input-group">
-                    <span class="input-group-addon">Char per line:</span>
-                    <select id="seqLineLengthI" class="form-control" style="border-top-left-radius:0px;border-bottom-left-radius:0px;">
-                        <option value="50">50</option>
-                        <option value="60" selected>60</option>
-                        <option value="70">70</option>
-                        <option value="80">80</option>
-                        <option value="90">90</option>
-                        <option value="100">100</option>
-                    </select>
+        <div id="ev_tab_content" class="tab-content">
+            <div class="tab-pane active" id="d_about">
+                <div class="container">
+                    <h4>Retrieve a sequence from A. thaliana Col-0 genome</h4>
+                    <blockquote>
+                        <p>View a sequence by searching with a gene locus id or by providing a genome coordinate. This app uses the <a href="https://github.com/keithwhor/NtSeq">NtSeq</a> library for the sequence manipulations and the <a href="http://biojs.io/d/sequence-viewer">BioJS Sequence Viewer Component</a> to display the sequences. The sequences are retrieved with one of Araport's <a href="https://github.com/Arabidopsis-Information-Portal/Get_Sequence_API">Get_Sequence</a> APIs.</p>
+                        <p><small>Genome Sequence Source: TAIR10</small></p>
+                    </blockquote>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div id="identifier_results" class="identifier_results col-xs-10"></div>
-    <br /><br /><br />
-      </div>
+            <div class="tab-pane" id="d_identifier">
+                <h4>Enter a gene identifier:</h4>
+                <form name="identifier_search_form" role="form">
+                    <div class="form-group col-xs-3">
+                        <label for="geneIdentifier" class="control-label"></label>
+                        <input type="text" name="geneIdentifier" id="geneIdentifier" value="AT1G01210" class="form-control" placeholder="AT1G01210" />
+                        <p><small>e.g AT1G33930</small></p>
+                    </div>
 
-      <div class="tab-pane" id="d_location">
-    <h4>Enter the coordinates:</h4>
-    <h5>The requested sequence length cannot exceed 1000000 bp!</h5>
-    <br>
+                    <div class="form-group col-xs-2">
+                        <b>Select flanking region:</b>
+                        <select name="flankLen" id="flankLen" class="form-control">
+                            <option value="0">None</option>
+                            <option value="50">50 bp</option>
+                            <option value="100">100 bp</option>
+                            <option value="250">250 bp</option>
+                            <option value="500">500 bp</option>
+                            <option value="1000">1000 bp</option>
+                            <option value="2000">2000 bp</option>
+                            <option value="3000">3000 bp</option>
+                            <option value="4000">4000 bp</option>
+                        </select>
+                    </div>
+                    <br /><br /><br /><br /><br />
+                    <div class="form-group">
+                        <button type="submit" id="id_submit" class="btn btn-success">Get Gene Sequence</button>
+                        <button type="button" class="btn btn-danger" id="identifier_search_form_reset">Reset</button>
+                    </div>
+                </form>
+                <br /><br />
 
-        <form name="location_search_form" role="form">
+                <div id="wait_region" class="wait_region"></div><br />
 
-          <div class="form-group col-xs-2">
-        <b>Select an id:</b>
-            <label for="chromosomeId" class="control-label"></label>
-            <select name="chromosomeId" id="chromosomeId" class="form-control">
-              <option value="Chr1">Chr1</option>
-              <option value="Chr2">Chr2</option>
-              <option value="Chr3">Chr3</option>
-              <option value="Chr4">Chr4</option>
-              <option value="Chr5">Chr5</option>
-              <option value="ChrC">ChrC</option>
-              <option value="ChrM">ChrM</option>
-            </select>
-      </div>
-
-      <div class="form-group col-xs-2">
-        <b>Enter Start:</b>
-            <label for="startCoordinate" class="control-label"></label>
-            <input type="number" name="startCoordinate" id="startCoordinate" value="1" min="1" class="form-control" placeholder="1" size="3" required/>
-      </div>
-
-      <div class="form-group col-xs-2">
-        <b>Enter End:</b>
-            <label for="endCoordinate" class="control-label"></label>
-            <input type="number" name="endCoordinate" id="endCoordinate" value="1000" min="1" class="form-control" placeholder="1000" size="3" required/>
-          </div>
-
-      <br /><br /><br /><br /><br />
-
-      <div class="form-group">
-            <button type="submit" class="btn btn-success">Get Region Sequence</button>
-            <button type="button" class="btn btn-danger" id="location_search_form_reset">Reset</button>
-      </div>
-    </form>
-    <br /><br />
-
-    <div id="wait_region2" class="wait_region2"></div><br />
-
-    <div class="form-inline">
-        <div class="form-group row">
-            <div id="reverse_region2">
-                <input type="checkbox" name="revComp2" id="revComp2" value="0" class="revbox" /><span class="revCompButton"><label for="revComp2" class="control-label">Reverse Complement</label></span>&nbsp;
-                <input type="checkbox" name="lowerCase2" id="lowerCase2" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase2" class="control-label">Lowercase</label></span>
-                <span id="download_region2"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence2">Download</button></span>
-                <div class="input-group">
-                    <span class="input-group-addon">Char per line:</span>
-                    <select id="seqLineLengthL" class="form-control" style="border-top-left-radius:0px;border-bottom-left-radius:0px;">
-                        <option value="50">50</option>
-                        <option value="60" selected>60</option>
-                        <option value="70">70</option>
-                        <option value="80">80</option>
-                        <option value="90">90</option>
-                        <option value="100">100</option>
-                    </select>
+                <div class="form-inline">
+                    <div class="form-group row">
+                        <div id="reverse_region">
+                            <input type="checkbox" name="revComp" id="revComp" value="0" class="revbox" /><span class="revCompButton"><label for="revComp" class="control-label">Reverse Complement</label></span>&nbsp;
+                            <input type="checkbox" name="lowerCase" id="lowerCase" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase" class="control-label">Lowercase</label></span>
+                            <span id="download_region"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence">Download</button></span>
+                            <div class="input-group">
+                                <span class="input-group-addon">Char per line:</span>
+                                <select id="seqLineLengthI" class="form-control" style="border-top-left-radius:0px;border-bottom-left-radius:0px;">
+                                    <option value="50">50</option>
+                                    <option value="60" selected>60</option>
+                                    <option value="70">70</option>
+                                    <option value="80">80</option>
+                                    <option value="90">90</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <div id="identifier_results" class="identifier_results col-xs-10"></div>
+                <br /><br /><br />
+            </div>
+
+            <div class="tab-pane" id="d_location">
+                <h4>Enter the coordinates:</h4>
+                <h5>The requested sequence length cannot exceed 1000000 bp!</h5>
+                <br>
+
+                <form name="location_search_form" role="form">
+                    <div class="form-group col-xs-2">
+                        <b>Select an id:</b>
+                        <label for="chromosomeId" class="control-label"></label>
+                        <select name="chromosomeId" id="chromosomeId" class="form-control">
+                            <option value="Chr1">Chr1</option>
+                            <option value="Chr2">Chr2</option>
+                            <option value="Chr3">Chr3</option>
+                            <option value="Chr4">Chr4</option>
+                            <option value="Chr5">Chr5</option>
+                            <option value="ChrC">ChrC</option>
+                            <option value="ChrM">ChrM</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-xs-2">
+                        <b>Enter Start:</b>
+                        <label for="startCoordinate" class="control-label"></label>
+                        <input type="number" name="startCoordinate" id="startCoordinate" value="1" min="1" class="form-control" placeholder="1" size="3" required/>
+                    </div>
+
+                    <div class="form-group col-xs-2">
+                        <b>Enter End:</b>
+                        <label for="endCoordinate" class="control-label"></label>
+                        <input type="number" name="endCoordinate" id="endCoordinate" value="1000" min="1" class="form-control" placeholder="1000" size="3" required/>
+                    </div>
+
+                    <br /><br /><br /><br /><br />
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Get Region Sequence</button>
+                        <button type="button" class="btn btn-danger" id="location_search_form_reset">Reset</button>
+                    </div>
+                </form>
+                <br /><br />
+
+                <div id="wait_region2" class="wait_region2"></div><br />
+
+                <div class="form-inline">
+                    <div class="form-group row">
+                        <div id="reverse_region2">
+                            <input type="checkbox" name="revComp2" id="revComp2" value="0" class="revbox" /><span class="revCompButton"><label for="revComp2" class="control-label">Reverse Complement</label></span>&nbsp;
+                            <input type="checkbox" name="lowerCase2" id="lowerCase2" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase2" class="control-label">Lowercase</label></span>
+                            <span id="download_region2"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence2">Download</button></span>
+                            <div class="input-group">
+                                <span class="input-group-addon">Char per line:</span>
+                                <select id="seqLineLengthL" class="form-control" style="border-top-left-radius:0px;border-bottom-left-radius:0px;">
+                                    <option value="50">50</option>
+                                    <option value="60" selected>60</option>
+                                    <option value="70">70</option>
+                                    <option value="80">80</option>
+                                    <option value="90">90</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="location_results" class="location_results form-group col-xs-10"></div>
+
+                <br /><br /><br />
+            </div>
+
+            <div class="tab-pane" id="d_list">
+                <h4>Enter the coordinates:</h4>
+                <br>
+
+                <form name="gene_search_form" role="form">
+                    <div class="form-group col-xs-2">
+                        <b>Select an id:</b>
+                        <label for="gene_chromosomeId" class="control-label"></label>
+                        <select name="gene_chromosomeId" id="gene_chromosomeId" class="form-control">
+                            <option value="Chr1">Chr1</option>
+                            <option value="Chr2">Chr2</option>
+                            <option value="Chr3">Chr3</option>
+                            <option value="Chr4">Chr4</option>
+                            <option value="Chr5">Chr5</option>
+                            <option value="ChrC">ChrC</option>
+                            <option value="ChrM">ChrM</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-xs-2">
+                        <b>Enter Start:</b>
+                        <label for="geneStartCoordinate" class="control-label"></label>
+                        <input type="number" name="geneStartCoordinate" id="geneStartCoordinate" value="29733" min="1" class="form-control" placeholder="29733" size="3" required/>
+                    </div>
+
+                    <div class="form-group col-xs-2">
+                        <b>Enter End:</b>
+                        <label for="geneEndCoordinate" class="control-label"></label>
+                        <input type="number" name="geneEndCoordinate" id="geneEndCoordinate" value="37349" min="1" class="form-control" placeholder="37349" size="3" required/>
+                    </div>
+
+                    <br /><br /><br /><br /><br />
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Get Region Genes</button>
+                        <button type="button" class="btn btn-danger" id="gene_search_form_reset">Reset</button>
+                    </div>
+                </form>
+                <br /><br />
+
+                <div id="wait_region3" class="wait_region3"></div><br />
+                <div id="gene_list_results" class="gene_list_results"></div>
+                <br /><br /><br />
             </div>
         </div>
+        <br />
     </div>
-
-    <div id="location_results" class="location_results form-group col-xs-10"></div>
-
-    <br /><br /><br />
-      </div>
-
-    </div>
-    <br />
-  </div>
 </div>

@@ -2,9 +2,12 @@
   "name": "getsequence-app",
   "private": true,
   "dependencies": {
+    "datatables": "~1.10.9",
+    "datatables-bootstrap3": "*",
     "FileSaver.js": "Arabidopsis-Information-Portal/FileSaver.js",
     "handlebars": "~3.0.3",
     "NtSeq": "Arabidopsis-Information-Portal/NtSeq#1.0.9",
-    "sequence-viewer": "Arabidopsis-Information-Portal/sequence-viewer#v0.2.0"
+    "sequence-viewer": "Arabidopsis-Information-Portal/sequence-viewer#v0.2.0",
+    "underscore": "~1.8.3"
   }
 }

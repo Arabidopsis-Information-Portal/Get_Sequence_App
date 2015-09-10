@@ -1,38 +1,10 @@
-caption {
-	font-weight: bold;
-	font-size: 1.1em;
+.gene-table td {
+    text-align: center;
+    white-space: nowrap;
 }
-
-.details-control {
-	text-align:center;
-    cursor: pointer;
-}
-
-.image-table td {
-	text-align: center;
-}
-
-.image-detail-table td {
-	text-align: center;
-}
-
-.iButton {
-	cursor: pointer;
-}
-
-.full-image {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
 .popover-definition {
 	max-width: 600px;
 	width: auto;
-}
-
-.at-table td {
-	white-space: nowrap;
 }
 
 .form-group {

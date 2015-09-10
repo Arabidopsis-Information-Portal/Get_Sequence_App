@@ -1,6 +1,6 @@
-/* global Sequence, Nt */
+/* global Sequence, Nt, _ */
 /* jshint camelcase: false */
-(function(window, $, undefined) {
+(function(window, $, _, undefined) {
     'use strict';
 
     console.log('Welcome to the GetSequence App!');
@@ -36,6 +36,35 @@
         log( 'Initializing sequence app...' );
     };
 
+    // templates
+    var templates = {
+        geneTable: _.template('<table class="table table-striped table-bordered gene-table">' +
+                              '<thead><tr>' +
+                              '<th>Gene</th>' +
+                              '<th>Location</th>' +
+                              '<th>Start</th>' +
+                              '<th>End</th>' +
+                              '<th>Strand</th>' +
+                              '<th></th>' +
+                              '</tr></thead><tbody>' +
+                              '<% _.each(result, function(r) { %>' +
+                              '<tr>' +
+                              '<td><%= r.locus %><a href="#gene-report" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" data-locus="<%= r.locus %>" class="btn btn-link btn-sm"><i class="fa fa-info-circle fa-lg"></i><span class="sr-only">Get Gene Report</span></a></td>' +
+                              '<td><%= r.location %></td>' +
+                              '<td><%= r.start %></td>' +
+                              '<td><%= r.end %></td>' +
+                              '<td><%= r.strand %></td>' +
+                              '<td><button type="button" class="btn btn-primary" id="view_sequence" data-locus="<%= r.locus %>">View Sequence</button></td>' +
+                              '</tr>' +
+                              '<% }) %>' +
+                              '</tbody>' +
+                              '</table>'),
+        geneReportPopover: _.template('<% _.each(properties, function(prop) { %>' +
+                                      '<h3><%= prop.type.replace("_"," ") %></h3>' +
+                                      '<p><%= prop.value %></p>' +
+                                      '<% }) %>'),
+    };
+
     /* - - - - - - - - - -  */
     /* Write error messages */
     /* - - - - - - - - - -  */
@@ -55,13 +84,19 @@
 
     var showError = function(err) {
         $('.wait_region').empty();
-        $('.error', appContext).html(errorMessage('Error contacting the server! Please try again later.'));
+        $('.error', appContext).html(errorMessage('Error interacting with the server [' + err.obj.message + ']! Please try again later.'));
         console.error('Status: ' + err.obj.status + '  Message: ' + err.obj.message);
     };
 
     var showError2 = function(err) {
         $('.wait_region2').empty();
-        $('.error', appContext).html(errorMessage('Error contacting the server! Please try again later.'));
+        $('.error', appContext).html(errorMessage('Error interacting with the server [' + err.obj.message + ']! Please try again later.'));
+        console.error('Status: ' + err.obj.status + '  Message: ' + err.obj.message);
+    };
+
+    var showError3 = function(err) {
+        $('.wait_region3').empty();
+        $('.error', appContext).html(errorMessage('Error interacting with the server [' + err.obj.message + ']! Please try again later.'));
         console.error('Status: ' + err.obj.status + '  Message: ' + err.obj.message);
     };
 
@@ -108,6 +143,68 @@
         enableLocSequenceDisplayButtons();
     };
 
+    // gene report handler
+    var geneReportHandler = function geneReportHandler() {
+        $('a[href=#gene-report]', appContext).on('click', function(e) {
+            e.preventDefault();
+            var el = $(this);
+            var locus = el.attr('data-locus');
+            if (locus.indexOf('.') !== -1) {
+                locus = locus.slice(0, locus.indexOf('.'));
+            }
+            var query = { locus: locus };
+            Agave.api.adama.search(
+                {'namespace': 'aip', 'service': 'locus_gene_report_v0.2.0', 'queryParams': query},
+                function(search) {
+                    el.popover({title: 'Gene Report: ' + locus,
+                                content: templates.geneReportPopover(search.obj.result[0]),
+                                trigger: 'manual',
+                                html: true,
+                                template: '<div class="popover popover-definition" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'});
+                    el.popover('toggle');
+                    $('.close').remove();
+                    $('.popover-title').append('<button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
+                    $('.close').click(function () {
+                        $(this).parents('.popover').popover('hide');
+                    });
+                }
+            );
+        });
+    };
+
+    var showGeneResults = function showGeneResults(json) {
+        // Verify the API query was successful
+        if ( ! (json && json.obj) || json.obj.status !== 'success') {
+            $('.gene_list_results', appContext).html(errorMessage('Error with retrieval of genes!'));
+            return;
+        }
+
+        // The search is done, hide the waiting bar
+        $('.wait_region3').empty();
+        $('.error').empty();
+
+        $('.gene_list_results', appContext).html(templates.geneTable(json.obj));
+
+        geneReportHandler();
+
+        $('.gene_list_results table', appContext).dataTable( {'lengthMenu': [10, 25, 50, 100],
+                                                              'columnDefs': [{'targets': 5,
+                                                                              'searchable': false,
+                                                                              'orderable': false,
+                                                                              'width': '40px'}]} );
+
+        $('.gene_list_results table', appContext).on('click', '#view_sequence', function (e) {
+            e.preventDefault();
+            var el = $(this);
+            var locus = el.attr('data-locus');
+
+            // set gene identifier from button and submit form
+            $('a[href="#d_identifier"]', appContext).tab('show');
+            $('#geneIdentifier', appContext).val(locus);
+            $('#id_submit', appContext).submit();
+        });
+    };
+
 
     /* - - - - - - - - - - - - - - - - - - - - - - -*/
     /* Process function for the sequence search - - */
@@ -121,7 +218,6 @@
         var sequence = data.result[0].sequence;
         var start = data.result[0].start;
         var s_adjust;
-        console.log(start);
         if(start < 1) {
             start = 1;
             s_adjust = 1;
@@ -429,6 +525,16 @@
         enableLocSequenceDisplayButtons();
     });
 
+    $('#gene_search_form_reset').on('click', function (e) {
+        e.preventDefault();
+        $('.error').empty();
+        $('.wait_region3').empty();
+        $('#gene_list_results').empty();
+        $('#gene_chromosomeId').val('Chr1');
+        $('#geneStartCoordinate').val('29733');
+        $('#geneEndCoordinate').val('37349');
+    });
+
     // Setup submit button functions which call the main wrapper function
     $('form[name=identifier_search_form]',appContext).on('submit',function(e) {
         log( 'Searching by identifier...' );
@@ -466,7 +572,7 @@
         // Run the query
         Agave.api.adama.search({
             'namespace': 'aip',
-            'service': 'get_sequence_by_identifier_v0.2',
+            'service': 'get_sequence_by_identifier_v0.3',
             'queryParams': params
         }, wrapperSequenceByIdentifier, showError);
     });
@@ -515,7 +621,7 @@
             disableLocSequenceDisplayButtons();
             Agave.api.adama.search({
                 'namespace': 'aip',
-                'service': 'get_sequence_by_coordinate_v0.2',
+                'service': 'get_sequence_by_coordinate_v0.3',
                 'queryParams': params
             }, wrapperSequenceByLocation, showError2);
         } else {
@@ -524,6 +630,33 @@
             // Do not execute
             $('.error', appContext).html(errorMessage('The requested sequence size exceeds the maximum!'));
         }
+    });
+
+    $('form[name=gene_search_form]', appContext).on('submit', function (e) {
+        console.log('Search genes by location...');
+        e.preventDefault();
+
+        $('.wait_region3', appContext).html('<div class="progress progress-striped active">' +
+                                           '<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">' +
+                                           '<span class="sr-only">Loading Data...</span></div></div>');
+
+        // clear current display/errors
+        $('.gene_list_results', appContext).empty();
+        $('.error').empty();
+
+        // setup query parameters
+        var params = {
+            chromosome: this.gene_chromosomeId.value,
+            start: this.geneStartCoordinate.value,
+            end: this.geneEndCoordinate.value,
+        };
+
+        // Run the query
+        Agave.api.adama.search({
+            'namespace': 'aip',
+            'service': 'get_identifiers_by_coordinate_v0.1',
+            'queryParams': params
+        }, showGeneResults, showError3);
     });
 
     // if the chars per line is changed
@@ -597,4 +730,4 @@
     /* - - - */
     });
 
-})(window, jQuery);
+})(window, jQuery, _);
