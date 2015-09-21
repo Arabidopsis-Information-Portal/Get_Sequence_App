@@ -1,3 +1,7 @@
+.export-button {
+    float: right;
+    margin: 10px;
+}
 .gene-table td {
     text-align: center;
     white-space: nowrap;
