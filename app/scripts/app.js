@@ -24,6 +24,7 @@
     var fullSequenceIdentifier = 'Sequence';
     var orig_sequence='';
     var thalemine_user = {};
+    var gTable;
 
     var DEBUG = true;
     var log = function log( message ) {
@@ -199,55 +200,22 @@
 
         geneReportHandler();
 
-        var gTable = $('.gene_list_results table', appContext).DataTable( {'lengthMenu': [10, 25, 50, 100],
-                                                                           'columnDefs': [{'targets': 5,
-                                                                                           'searchable': false,
-                                                                                           'orderable': false,
-                                                                                           'width': '40px'}]} );
+        gTable = $('.gene_list_results table', appContext).DataTable( {'lengthMenu': [10, 25, 50, 100],
+                                                                       'columnDefs': [{'targets': 5,
+                                                                       'searchable': false,
+                                                                       'orderable': false,
+                                                                       'width': '40px'}]} );
 
         if (gTable.data().length > 0) {
             $('div.gene_list_results', appContext).prepend('<button type="button" class="btn btn-default export-button" id="export_list">Export as List to ThaleMine</button>');
         }
 
         Agave.api.adama.search(
-            {'namespace': 'eriksf-dev', 'service': 'get_thalemine_user_v0.1'},
+            {'namespace': 'aip', 'service': 'get_thalemine_user_v0.1'},
             function (search) {
                 thalemine_user = search.obj.result[0];
             }
         );
-
-        $('.gene_list_results', appContext).on('click', '#export_list', function (e) {
-            e.preventDefault();
-            var ids = [];
-            gTable.column(0).data().each(function (value) {
-                ids.push($($.parseHTML(value)).text());
-            });
-
-            var id_str = ids.join(' ');
-            var list_name = 'Genes_on_' + $('#gene_chromosomeId').val() + '_between_' + $('#geneStartCoordinate').val() + '_and_' + $('#geneEndCoordinate').val() + '-' + new Date().toISOString();
-            var params = {
-                name: list_name,
-                type: 'Gene',
-                data: id_str
-            };
-            Agave.api.adama.search(
-                {'namespace': 'eriksf-dev', 'service': 'create_list_v0.1', 'queryParams': params},
-                function (search) {
-                    if ( ! (search && search.obj) || search.obj.status !== 'success' || ! search.obj.result[0].wasSuccessful) {
-                        var msg = 'Error creating list ' + list_name + ' for user ' +  getUserName() + ' in ThaleMine. Please try again later!';
-                        $('.error', appContext).html(errorMessage(msg));
-                        console.error(msg);
-                        return;
-                    }
-                    $('.error', appContext).html(infoMessage('List ' + list_name + ' created for user ' + getUserName() + ' in ThaleMine!'));
-                },
-                function (err) {
-                    var msg = 'Error creating list ' + list_name + ' for user ' +  getUserName() + ' in ThaleMine. Please try again later!';
-                    $('.error', appContext).html(errorMessage(msg));
-                    console.error(msg + ': ' + err);
-                }
-            );
-        });
 
         $('.gene_list_results table', appContext).on('click', '#view_sequence', function (e) {
             e.preventDefault();
@@ -710,7 +678,7 @@
         // Run the query
         Agave.api.adama.search({
             'namespace': 'aip',
-            'service': 'get_identifiers_by_coordinate_v0.1',
+            'service': 'get_identifiers_by_coordinate_v0.2',
             'queryParams': params
         }, showGeneResults, showError3);
     });
@@ -779,6 +747,39 @@
         var lineLength = $('#seqLineLengthL').val();
 
         redrawSequence(revSeq, lowerCase, lineLength, mySequenceL, '#location_results', LUID);
+    });
+
+    $('.gene_list_results', appContext).on('click', '#export_list', function (e) {
+        e.preventDefault();
+        var ids = [];
+        gTable.column(0).data().each(function (value) {
+            ids.push($($.parseHTML(value)).text());
+        });
+
+        var id_str = ids.join(' ');
+        var list_name = 'Genes_on_' + $('#gene_chromosomeId').val() + '_between_' + $('#geneStartCoordinate').val() + '_and_' + $('#geneEndCoordinate').val() + '-' + new Date().toISOString();
+        var params = {
+            name: list_name,
+            type: 'Gene',
+            data: id_str
+        };
+        Agave.api.adama.search(
+            {'namespace': 'aip', 'service': 'create_thalemine_list_v0.2', 'queryParams': params},
+            function (search) {
+                if ( ! (search && search.obj) || search.obj.status !== 'success' || ! search.obj.result[0].wasSuccessful) {
+                    var msg = 'Error creating list ' + list_name + ' for user ' +  getUserName() + ' in ThaleMine. Please try again later!';
+                    $('.error', appContext).html(errorMessage(msg));
+                    console.error(msg);
+                    return;
+                }
+                $('.error', appContext).html(infoMessage('List ' + list_name + ' created for user ' + getUserName() + ' in ThaleMine!'));
+            },
+            function (err) {
+                var msg = 'Error creating list ' + list_name + ' for user ' +  getUserName() + ' in ThaleMine. Please try again later!';
+                $('.error', appContext).html(errorMessage(msg));
+                console.error(msg + ': ' + err);
+            }
+        );
     });
 
     /* - - - */
