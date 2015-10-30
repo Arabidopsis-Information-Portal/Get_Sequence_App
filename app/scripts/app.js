@@ -210,10 +210,10 @@
             $('div.gene_list_results', appContext).prepend('<button type="button" class="btn btn-default export-button" id="export_list">Export as List to ThaleMine</button>');
         }
 
-        Agave.api.adama.search(
-            {'namespace': 'aip', 'service': 'get_thalemine_user_v0.1'},
+        Agave.api.adama.getAccess(
+            {'namespace': 'aip', 'service': 'get_thalemine_user_v1.1'},
             function (search) {
-                thalemine_user = search.obj.result[0];
+                thalemine_user = search.obj.user;
             }
         );
 
@@ -570,7 +570,7 @@
 
         e.preventDefault();
 
-        $('.wait_region', appContext).html('<div class="progress progress-striped active">' +
+        $('.wait_region', appContext).html('<h4>Loading Data...</h4><div class="progress progress-striped active">' +
                                            '<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">' +
                                            '<span class="sr-only">Loading Data...</span></div></div>');
 
@@ -611,7 +611,7 @@
 
         e.preventDefault();
 
-        $('.wait_region2', appContext).html('<div class="progress progress-striped active">' +
+        $('.wait_region2', appContext).html('<h4>Loading Data...</h4><div class="progress progress-striped active">' +
                                            '<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">' +
                                            '<span class="sr-only">Loading Data...</span></div></div>');
 
@@ -660,7 +660,7 @@
         console.log('Search genes by location...');
         e.preventDefault();
 
-        $('.wait_region3', appContext).html('<div class="progress progress-striped active">' +
+        $('.wait_region3', appContext).html('<h4>Loading Data...</h4><div class="progress progress-striped active">' +
                                            '<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">' +
                                            '<span class="sr-only">Loading Data...</span></div></div>');
 
@@ -758,28 +758,29 @@
 
         var id_str = ids.join(' ');
         var list_name = 'Genes_on_' + $('#gene_chromosomeId').val() + '_between_' + $('#geneStartCoordinate').val() + '_and_' + $('#geneEndCoordinate').val() + '-' + new Date().toISOString();
-        var params = {
-            name: list_name,
-            type: 'Gene',
-            data: id_str
-        };
-        Agave.api.adama.search(
-            {'namespace': 'aip', 'service': 'create_thalemine_list_v0.2', 'queryParams': params},
-            function (search) {
-                if ( ! (search && search.obj) || search.obj.status !== 'success' || ! search.obj.result[0].wasSuccessful) {
+
+        $.ajax({
+            url: 'https://api.araport.org/community/v0.3/aip/create_thalemine_list_v1.1/access?name=' + list_name + '&type=Gene',
+            contentType: 'text/plain',
+            type: 'POST',
+            processData: false,
+            headers: {'Authorization': 'Bearer ' + Agave.token.accessToken},
+            data: id_str,
+            error: function (err) {
+                var msg = 'Error creating list ' + list_name + ' for user ' +  getUserName() + ' in ThaleMine. Please try again later!';
+                $('.error', appContext).html(errorMessage(msg));
+                console.error(msg + ': ' + err);
+            },
+            success: function (data) {
+                if ( ! (data) || ! data.wasSuccessful) {
                     var msg = 'Error creating list ' + list_name + ' for user ' +  getUserName() + ' in ThaleMine. Please try again later!';
                     $('.error', appContext).html(errorMessage(msg));
                     console.error(msg);
                     return;
                 }
                 $('.error', appContext).html(infoMessage('List ' + list_name + ' created for user ' + getUserName() + ' in ThaleMine!'));
-            },
-            function (err) {
-                var msg = 'Error creating list ' + list_name + ' for user ' +  getUserName() + ' in ThaleMine. Please try again later!';
-                $('.error', appContext).html(errorMessage(msg));
-                console.error(msg + ': ' + err);
             }
-        );
+        });
     });
 
     /* - - - */
