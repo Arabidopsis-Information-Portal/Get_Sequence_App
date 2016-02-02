@@ -25,6 +25,12 @@
     var orig_sequence='';
     var thalemine_user = {};
     var gTable;
+    var mySequenceI;
+    var mySequenceL;
+
+    //identifiers to make the html ids of Sequence-Viewer Configuration unique
+    var IUID = 'I001';
+    var LUID = 'L001';
 
     var DEBUG = true;
     var log = function log( message ) {
@@ -92,19 +98,7 @@
     };
 
     var showError = function(err) {
-        $('.wait_region').empty();
-        $('.error', appContext).html(errorMessage('Error interacting with the server [' + err.obj.message + ']! Please try again later.'));
-        console.error('Status: ' + err.obj.status + '  Message: ' + err.obj.message);
-    };
-
-    var showError2 = function(err) {
-        $('.wait_region2').empty();
-        $('.error', appContext).html(errorMessage('Error interacting with the server [' + err.obj.message + ']! Please try again later.'));
-        console.error('Status: ' + err.obj.status + '  Message: ' + err.obj.message);
-    };
-
-    var showError3 = function(err) {
-        $('.wait_region3').empty();
+        $('#wait_region').addClass('hidden');
         $('.error', appContext).html(errorMessage('Error interacting with the server [' + err.obj.message + ']! Please try again later.'));
         console.error('Status: ' + err.obj.status + '  Message: ' + err.obj.message);
     };
@@ -121,13 +115,14 @@
 
         var returnedSequences = processSequenceResults(json);
         // The search is done, hide the waiting bar
-        $('.wait_region').empty();
+        $('#wait_region').addClass('hidden');
         $('.error').empty();
+        $('#identifier_display').removeClass('hidden');
+        enableIdentSequenceDisplayButtons();
 
         // Display the sequence
         var lineLength = $('#seqLineLengthI').val();
         mySequenceI = displaySequence(mySequenceI, returnedSequences[0], returnedSequences[1], '#identifier_results', IUID, lineLength);
-        enableIdentSequenceDisplayButtons();
     };
 
 
@@ -143,13 +138,14 @@
 
         var returnedSequences = processSequenceResults(json);
         // The search is done, hide the waiting bar
-        $('.wait_region2').empty();
+        $('#wait_region').addClass('hidden');
         $('.error').empty();
+        $('#location_display').removeClass('hidden');
+        enableLocSequenceDisplayButtons();
 
         // Display the sequence
         var lineLength = $('#seqLineLengthL').val();
         mySequenceL = displaySequence(mySequenceL, returnedSequences[0], returnedSequences[1], '#location_results', LUID, lineLength);
-        enableLocSequenceDisplayButtons();
     };
 
     // gene report handler
@@ -193,7 +189,7 @@
         }
 
         // The search is done, hide the waiting bar
-        $('.wait_region3').empty();
+        $('#wait_region').addClass('hidden');
         $('.error').empty();
 
         $('.gene_list_results', appContext).html(templates.geneTable(json.obj));
@@ -290,8 +286,6 @@
     function displaySequence(BioJsObj, seq, id, loc, uid, charsPerLine) {
 
         // repopulate BioJS sequence object and display
-        $('.wait_region2').empty();
-
         if (loc === '#identifier_results') {
             fullSequenceIdentifier = id + ' FlankLength=' + flankLength;
         } else {
@@ -427,96 +421,22 @@
     /* - - - - -  */
     init();
 
-    // define example data upon first launch of the app and reset
-    var example_id = 'AT1G01210';
-    var example_id2 = 'Sequence';
-    var example_sequence = 'AGAATGTTGAAGAAACAGAAACTTAGGGTTTATGTGGTGGATGAATGATTTAGCAGCGAATTGAAGGGTGTGGTGGAAGATGGAGTTTTGTCCAACATGTGGGAATCTGTTGCGATACGAGGGAGGTGGCAATTCGAGATTCTTCTGTTCCACATGTCCATACGTCGCCTACATCCAAAGACAGGTTCTTTTTTCAATTATATACCTTTTGAAAGTTTGTGAGCAAACCGTTAAAATTCTCTCCTCTGTTCCTGAGTGCTTTGGAATTTTGACAGGTGGAGATAAAGAAGAAGCAACTTCTGGTTAAGAAATCTATAGAAGCTGTTGTGACTAAAGATGATATACCCACAGCTGCTGAAACTGAAGGTATTTTCAGTCTCTTGTCTTCTCTTCTTCTAATTTTAGGACTGTGATGAGTTGGTTCAGAGTTGATCTCACTTGGGGAAAGAGTAGAGTAGACTTTTGTTTCACTTTCTTTCTCATGTTGGGATTGTTTGGTTTTAACAGCCCCATGTCCAAGGTGTGGCCACGACAAGGCATACTTCAAATCAATGCAGATTCGTTCAGCAGATGAGCCAGAATCAAGATTTTATAGATGCTTGAAGTGCGAGTTCACTTGGCGTGAGGAATGAACTGACTGATGATCATCTTCTCCGTCTCTTTGCCTCTGCCAATTTTGAAAGTTTCTACTTTTGCAACCTTCTTAGAGTTTGTTTTACCATTGCAAATTTAGCAGATCCTTTATGTACTCTGCTTCTTTCTGTCTCACAGCTCAATAGTTTCTGTTTCGATTAAATTTTGGAATGTTGTGCAAAGTTTTAATCTTTGAGGTGAAAGAGATGAAGCAA';
-
-    // insert initial example data into global variables
-    orig_sequence = example_sequence;
-    curr_seq = example_sequence;
-    chromosomeId = 'Chr1';
-    startCoordinate = 88897;
-    endCoordinate = 89745;
-    chromloc = 'Chr1..' + (startCoordinate+1) + '-' + endCoordinate;
-    sequenceIdentifier = example_id;
-    fullSequenceIdentifier = example_id + ' Location=Chr1..88898-89745 ReverseComplemented=False FlankLength=0';
-
-    //identifiers to make the html ids of Sequence-Viewer Configuration unique
-    var IUID = 'I001';
-    var LUID = 'L001';
-
-    // Initialize a BioJs sequence for Search By Identifier tab
-    var mySequenceI = new Sequence($,example_sequence,example_id);
-    mySequenceI.render('#identifier_results', {
-        'showLineNumbers': true,
-        'wrapAminoAcids': true,
-        'charsPerLine': $('#seqLineLengthI').val(),
-        'toolbar': false,
-        'search': true,
-        'id': IUID,
-        'location': chromloc,
-        'flank': 0,
-        'revComp': false
-    });
-
-    // Initialize a BioJs sequence for Search By Genome Location tab
-    var mySequenceL = new Sequence($,example_sequence,example_id2);
-    mySequenceL.render('#location_results', {
-        'showLineNumbers': true,
-        'wrapAminoAcids': true,
-        'charsPerLine': $('#seqLineLengthL').val(),
-        'toolbar': false,
-        'search': true,
-        'id': LUID,
-        'location': chromloc,
-        'flank': 0,
-        'revComp': false
-    });
-
-    enableIdentSequenceDisplayButtons();
-    enableLocSequenceDisplayButtons();
-
     // Setup clear button functions
     $('#identifier_search_form_reset').on('click', function() {
         $('.error').empty();
-        $('.wait_region').empty();
+        $('#wait_region').addClass('hidden');
         $('#identifier_results').empty();
         $('#geneIdentifier').val('AT1G01210');
         $('#flankLen').val('0');
         $('#revComp').prop('checked', false);
         $('#lowerCase').prop('checked', false);
         $('#seqLineLengthI').val('60');
-
-        // reset to initial example
-        sequenceIdentifier = example_id;
-        fullSequenceIdentifier = example_id + ' Location=Chr1..88898-89745 ReverseComplemented=False FlankLength=0';
-        curr_seq = example_sequence;
-        orig_sequence = example_sequence;
-        chromosomeId = 'Chr1';
-        startCoordinate = 88897;
-        endCoordinate = 89745;
-        chromloc = 'Chr1..' + (startCoordinate+1) + '-' + endCoordinate;
-        flankLength = 0;
-
-        mySequenceI = new Sequence($,example_sequence,example_id);
-        mySequenceI.render('#identifier_results', {
-            'showLineNumbers': true,
-            'wrapAminoAcids': true,
-            'charsPerLine': $('#seqLineLengthI').val(),
-            'toolbar': false,
-            'search': true,
-            'id': IUID,
-            'location': chromloc,
-            'flank': flankLength,
-            'revComp': false
-        });
-        enableIdentSequenceDisplayButtons();
+        $('#identifier_display').addClass('hidden');
     });
 
     $('#location_search_form_reset').on('click', function() {
         $('.error').empty();
-        $('.wait_region2').empty();
+        $('#wait_region').addClass('hidden');
         $('#location_results').empty();
         $('#chromosomeId').val('Chr1');
         $('#startCoordinate').val('1');
@@ -524,35 +444,13 @@
         $('#revComp2').prop('checked', false);
         $('#lowerCase2').prop('checked', false);
         $('#seqLineLengthL').val('60');
-
-        sequenceIdentifier = example_id2;
-        fullSequenceIdentifier = example_id2 + ' Location=Chr1..88898-89745 ReverseComplemented=False FlankLength=0';
-        curr_seq = example_sequence;
-        orig_sequence = example_sequence;
-        chromosomeId = 'Chr1';
-        startCoordinate = 88897;
-        endCoordinate = 89745;
-        chromloc = 'Chr1..' + (startCoordinate+1) + '-' + endCoordinate;
-
-        mySequenceL = new Sequence($,example_sequence,example_id2);
-        mySequenceL.render('#location_results', {
-            'showLineNumbers': true,
-            'wrapAminoAcids': true,
-            'charsPerLine': $('#seqLineLengthL').val(),
-            'toolbar': false,
-            'search': true,
-            'id': LUID,
-            'location': chromloc,
-            'flank': 0,
-            'revComp': false
-        });
-        enableLocSequenceDisplayButtons();
+        $('#location_display').addClass('hidden');
     });
 
     $('#gene_search_form_reset').on('click', function (e) {
         e.preventDefault();
         $('.error').empty();
-        $('.wait_region3').empty();
+        $('#wait_region').addClass('hidden');
         $('#gene_list_results').empty();
         $('#gene_chromosomeId').val('Chr1');
         $('#geneStartCoordinate').val('29733');
@@ -570,11 +468,7 @@
 
         e.preventDefault();
 
-        $('.wait_region', appContext).html('<h4>Loading Data...</h4><div class="progress progress-striped active">' +
-                                           '<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">' +
-                                           '<span class="sr-only">Loading Data...</span></div></div>');
-
-        document.getElementById('wait_region').style.display='block';
+        $('#wait_region').removeClass('hidden');
 
         // Assign input parameters to global variables
         geneIdentifier = this.geneIdentifier.value;
@@ -611,9 +505,7 @@
 
         e.preventDefault();
 
-        $('.wait_region2', appContext).html('<h4>Loading Data...</h4><div class="progress progress-striped active">' +
-                                           '<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">' +
-                                           '<span class="sr-only">Loading Data...</span></div></div>');
+        $('#wait_region').removeClass('hidden');
 
         // Assign input parameters to global variables
         chromosomeId = this.chromosomeId.value;
@@ -647,10 +539,9 @@
                 'namespace': 'aip',
                 'service': 'get_sequence_by_coordinate_v0.3',
                 'queryParams': params
-            }, wrapperSequenceByLocation, showError2);
+            }, wrapperSequenceByLocation, showError);
         } else {
             disableLocSequenceDisplayButtons();
-            $('.wait_region2').empty();
             // Do not execute
             $('.error', appContext).html(errorMessage('The requested sequence size exceeds the maximum!'));
         }
@@ -660,13 +551,10 @@
         console.log('Search genes by location...');
         e.preventDefault();
 
-        $('.wait_region3', appContext).html('<h4>Loading Data...</h4><div class="progress progress-striped active">' +
-                                           '<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">' +
-                                           '<span class="sr-only">Loading Data...</span></div></div>');
-
         // clear current display/errors
         $('.gene_list_results', appContext).empty();
         $('.error').empty();
+        $('#wait_region').removeClass('hidden');
 
         // setup query parameters
         var params = {
@@ -680,7 +568,7 @@
             'namespace': 'aip',
             'service': 'get_identifiers_by_coordinate_v0.2',
             'queryParams': params
-        }, showGeneResults, showError3);
+        }, showGeneResults, showError);
     });
 
     // if the chars per line is changed

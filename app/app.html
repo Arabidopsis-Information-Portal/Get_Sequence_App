@@ -8,6 +8,14 @@
         </ul>
 
         <div class="error"></div>
+        <div id="wait_region" class="hidden">
+            <h4>Loading Data...</h4>
+            <div class="progress progress-striped active">
+                <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+                    <span class="sr-only">Loading Data</span>
+                </div>
+            </div>
+         </div>
 
         <div id="ev_tab_content" class="tab-content">
             <div class="tab-pane active" id="d_about">
@@ -48,33 +56,33 @@
                         <button type="button" class="btn btn-danger" id="identifier_search_form_reset">Reset</button>
                     </div>
                 </form>
-                <br /><br />
 
-                <div id="wait_region" class="wait_region"></div><br />
+                <br>
 
-                <div class="form-inline">
-                    <div class="form-group row">
-                        <div id="reverse_region">
-                            <input type="checkbox" name="revComp" id="revComp" value="0" class="revbox" /><span class="revCompButton"><label for="revComp" class="control-label">Reverse Complement</label></span>&nbsp;
-                            <input type="checkbox" name="lowerCase" id="lowerCase" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase" class="control-label">Lowercase</label></span>
-                            <span id="download_region"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence">Download</button></span>
-                            <div class="input-group">
-                                <span class="input-group-addon">Char per line:</span>
-                                <select id="seqLineLengthI" class="form-control" style="border-top-left-radius:0px;border-bottom-left-radius:0px;">
-                                    <option value="50">50</option>
-                                    <option value="60" selected>60</option>
-                                    <option value="70">70</option>
-                                    <option value="80">80</option>
-                                    <option value="90">90</option>
-                                    <option value="100">100</option>
-                                </select>
+                <div id="identifier_display" class="hidden">
+                    <div class="form-inline">
+                        <div class="form-group row">
+                            <div id="reverse_region">
+                                <input type="checkbox" name="revComp" id="revComp" value="0" class="revbox" /><span class="revCompButton"><label for="revComp" class="control-label">Reverse Complement</label></span>&nbsp;
+                                <input type="checkbox" name="lowerCase" id="lowerCase" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase" class="control-label">Lowercase</label></span>
+                                <span id="download_region"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence">Download</button></span>
+                                <div class="input-group">
+                                    <span class="input-group-addon">Char per line:</span>
+                                    <select id="seqLineLengthI" class="form-control" style="border-top-left-radius:0px;border-bottom-left-radius:0px;">
+                                        <option value="50">50</option>
+                                        <option value="60" selected>60</option>
+                                        <option value="70">70</option>
+                                        <option value="80">80</option>
+                                        <option value="90">90</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div id="identifier_results" class="identifier_results col-xs-10"></div>
-                <br /><br /><br />
+                    <div id="identifier_results" class="identifier_results col-xs-10"></div>
+                </div>
             </div>
 
             <div class="tab-pane" id="d_location">
@@ -116,34 +124,33 @@
                         <button type="button" class="btn btn-danger" id="location_search_form_reset">Reset</button>
                     </div>
                 </form>
-                <br /><br />
 
-                <div id="wait_region2" class="wait_region2"></div><br />
+                <br>
 
-                <div class="form-inline">
-                    <div class="form-group row">
-                        <div id="reverse_region2">
-                            <input type="checkbox" name="revComp2" id="revComp2" value="0" class="revbox" /><span class="revCompButton"><label for="revComp2" class="control-label">Reverse Complement</label></span>&nbsp;
-                            <input type="checkbox" name="lowerCase2" id="lowerCase2" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase2" class="control-label">Lowercase</label></span>
-                            <span id="download_region2"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence2">Download</button></span>
-                            <div class="input-group">
-                                <span class="input-group-addon">Char per line:</span>
-                                <select id="seqLineLengthL" class="form-control" style="border-top-left-radius:0px;border-bottom-left-radius:0px;">
-                                    <option value="50">50</option>
-                                    <option value="60" selected>60</option>
-                                    <option value="70">70</option>
-                                    <option value="80">80</option>
-                                    <option value="90">90</option>
-                                    <option value="100">100</option>
-                                </select>
+                <div id="location_display" class="hidden">
+                    <div class="form-inline">
+                        <div class="form-group row">
+                            <div id="reverse_region2">
+                                <input type="checkbox" name="revComp2" id="revComp2" value="0" class="revbox" /><span class="revCompButton"><label for="revComp2" class="control-label">Reverse Complement</label></span>&nbsp;
+                                <input type="checkbox" name="lowerCase2" id="lowerCase2" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase2" class="control-label">Lowercase</label></span>
+                                <span id="download_region2"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence2">Download</button></span>
+                                <div class="input-group">
+                                    <span class="input-group-addon">Char per line:</span>
+                                    <select id="seqLineLengthL" class="form-control" style="border-top-left-radius:0px;border-bottom-left-radius:0px;">
+                                        <option value="50">50</option>
+                                        <option value="60" selected>60</option>
+                                        <option value="70">70</option>
+                                        <option value="80">80</option>
+                                        <option value="90">90</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <div id="location_results" class="location_results form-group col-xs-10"></div>
                 </div>
-
-                <div id="location_results" class="location_results form-group col-xs-10"></div>
-
-                <br /><br /><br />
             </div>
 
             <div class="tab-pane" id="d_list">
@@ -184,13 +191,21 @@
                         <button type="button" class="btn btn-danger" id="gene_search_form_reset">Reset</button>
                     </div>
                 </form>
-                <br /><br />
 
                 <div id="wait_region3" class="wait_region3"></div><br />
                 <div id="gene_list_results" class="gene_list_results"></div>
-                <br /><br /><br />
             </div>
         </div>
+
         <br />
+
+        <div class="row">
+            <div class="col-sm-12">
+                <p>
+                    Data &amp; web services provided by
+                    <a href="http://apps.araport.org/thalemine" target="_blank">ThaleMine <i class="fa fa-external-link"></i></a>.
+                </p>
+            </div>
+        </div>
     </div>
 </div>
