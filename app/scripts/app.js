@@ -1,4 +1,4 @@
-/* global Sequence, Nt, _ */
+/* global Sequence, Nt, Clipboard, _ */
 /* jshint camelcase: false */
 (function(window, $, _, undefined) {
     'use strict';
@@ -11,18 +11,8 @@
 
     // Initialize some variables
     var Agave = window.Agave;
-    var geneIdentifier = '';
-    var flankLength = 0;
-    var revSeq = false;
-    var lowerCase = false;
-    var chromosomeId = '';
-    var startCoordinate = 0;
-    var endCoordinate = 0;
-    var curr_id, curr_seq; //for download purposes
-    var chromloc = '';
-    var sequenceIdentifier = 'Sequence';
-    var fullSequenceIdentifier = 'Sequence';
-    var orig_sequence='';
+    var identifier_sequence;
+    var location_sequence;
     var thalemine_user = {};
     var gTable;
     var mySequenceI;
@@ -31,6 +21,65 @@
     //identifiers to make the html ids of Sequence-Viewer Configuration unique
     var IUID = 'I001';
     var LUID = 'L001';
+
+    function Seq(sequence, chromosome, start, end) {
+        this.sequence = sequence;
+        this.chromosome = chromosome;
+        this.start_coordinate = start;
+        this.end_coordinate = end;
+        this.identifier = 'Sequence';
+        this.flank_length = '';
+        this.reverseComplemented = false;
+        this.lowerCased = false;
+    }
+
+    Seq.prototype = {
+        constructor: Seq,
+        startAdjusted:function () {
+            if (this.start_coordinate < 1 || this.start_coordinate === 1) {
+                return 1;
+            } else {
+                return this.start_coordinate + 1;
+            }
+        },
+        chromosomeLocation:function () {
+            return this.chromosome + '..' + this.startAdjusted() + '-' + this.end_coordinate;
+        },
+        definitionLine:function () {
+            var defline = this.identifier + ' Location=' + this.chromosomeLocation();
+            if (this.reverseComplemented) {
+                defline += ' ReverseComplemented=' + this.reverseComplemented;
+            }
+            if (this.flank_length && this.flank_length !== '') {
+                defline += ' FlankLength=' + this.flank_length;
+            }
+            return defline;
+        },
+        reverseComplement:function () {
+            this.reverseComplemented = true;
+            var loadSequence = new Nt.Seq();
+            loadSequence.read(this.sequence);
+            return loadSequence.complement().sequence();
+        },
+        lowerCase:function () {
+            return this.sequence.toLowerCase();
+        },
+        draw:function () {
+            var draw_seq = this.sequence;
+            if (this.reverseComplemented) {
+                if (this.lowerCased) {
+                    draw_seq = this.reverseComplement().toLowerCase();
+                } else {
+                    draw_seq = this.reverseComplement();
+                }
+            } else {
+                if (this.lowerCased) {
+                    draw_seq = this.lowerCase();
+                }
+            }
+            return draw_seq;
+        }
+    };
 
     var DEBUG = true;
     var log = function log( message ) {
@@ -42,6 +91,7 @@
     // Start notification
     var init = function init() {
         log( 'Initializing sequence app...' );
+        new Clipboard('.btn-clipboard');
     };
 
     // templates
@@ -97,10 +147,146 @@
                message + '</div>';
     };
 
-    var showError = function(err) {
+    var showError = function showError(err) {
         $('#wait_region').addClass('hidden');
-        $('.error', appContext).html(errorMessage('Error interacting with the server [' + err.obj.message + ']! Please try again later.'));
-        console.error('Status: ' + err.obj.status + '  Message: ' + err.obj.message);
+        var message = '';
+        var status = '';
+        if (err && err.obj) {
+            message = err.obj.message;
+            status = err.obj.status;
+        }
+        $('.error', appContext).html(errorMessage('Error interacting with the server [' + message + ']! Please try again later.'));
+        console.error('Status: ' + status + '  Message: ' + message);
+    };
+
+    /* - - - - - - - - - - - - - - - - - - - - - - -*/
+    /* Process function for the sequence search - - */
+    /* - - - - - - - - - - - - - - - - - - - - - - -*/
+    var processSequenceResults = function processSequenceResults( json ) {
+
+        // Begin parsing json
+        var data = json.obj || json;
+
+        // Extract the sequence
+        var sequence = data.result[0].sequence;
+        var start = data.result[0].start;
+
+        var end = data.result[0].end;
+        var chromosome = data.result[0].chromosome;
+
+        // return sequences and ids
+        var my_seq = new Seq(sequence.toUpperCase(), chromosome, start, end);
+
+        return my_seq;
+    };
+
+    /* - - - - - - - - - - - - - - - - - - - - - - */
+    /* Display function for the sequence - - - - - */
+    /* - - - - - - - - - - - - - - - - - - - - - - */
+    function displaySequence(BioJsObj, seq_obj, loc, uid, charsPerLine) {
+
+        BioJsObj = new Sequence($,seq_obj.sequence,seq_obj.identifier);
+        BioJsObj.render(loc, {
+        'showLineNumbers': true,
+        'wrapAminoAcids': true,
+        'charsPerLine': charsPerLine,
+        'toolbar': false,
+        'search': true,
+        'id': uid,
+        'location': seq_obj.chromosomeLocation(),
+        'flank': seq_obj.flank_length,
+        'revComp': seq_obj.reverseComplemented
+        });
+
+        var seqlen = parseInt(seq_obj.end_coordinate) - parseInt(seq_obj.start_coordinate);
+        if ( seq_obj.flank_length > 0 && loc === '#identifier_results') {
+            var fstart_b = 0;
+            var fend_b = parseInt(seq_obj.flank_length);
+            var fstart_e = parseInt(seqlen) - parseInt(seq_obj.flank_length);
+            var fend_e = seqlen;
+            var seqstart = parseInt(fend_b);
+            var seqend = fstart_e;
+            var flankCoverage = [
+                {start: fstart_b, end: fend_b, color: '#33CCCC', underscore: false},
+                {start: seqstart, end: seqend, color: 'black', underscore: false},
+                {start: fstart_e, end: fend_e, color: '#33CCCC', underscore: false}
+            ];
+
+            //Define Legend and color codes
+            var flankLegend = [
+                {name: 'Target Sequence', color: 'black', underscore: false},
+                {name: 'Flanking sequence', color: '#33CCCC', underscore: false}
+            ];
+
+            BioJsObj.coverage(flankCoverage);
+            BioJsObj.addLegend(flankLegend);
+        }
+
+        return BioJsObj;
+    }
+
+    var saveAsFile = function saveAsFile(content, filetype, filename) {
+        try {
+            var isFileSaverSupported = !!new Blob();
+            if (!isFileSaverSupported) {
+                $('.error', appContext).html(errorMessage('Sorry, your browser does not support this feature. Please upgrade to a more modern browser.'));
+            }
+            var blob = new Blob([content], {type: filetype});
+            window.saveAs(blob, filename);
+        } catch (e) {
+            $('.error', appContext).html(errorMessage('Sorry, your browser does not support this feature. Please upgrade to a more modern browser.'));
+        }
+    };
+
+    var formatSequence = function formatSequence(sequence, ident, length) {
+        var regex = new RegExp('(.{' + length + '})', 'g');
+        var displaySeq = sequence.replace(regex, '$1\n');
+        var content = '>' + ident + '\n' + displaySeq;
+        return content;
+    };
+
+    var enableIdentSequenceDisplayButtons = function enableIdentSequenceDisplayButtons() {
+        $('#revComp').prop('disabled', false);
+        $('#revCompButton').prop('disabled', false);
+        $('#lowerCase').prop('disabled', false);
+        $('#lowerCaseButton').prop('disabled', false);
+        $('#fasta').prop('disabled', false);
+        $('#fastaButton').prop('disabled', false);
+        $('#seqLineLengthI').prop('disabled', false);
+        $('#download_sequence').prop('disabled', false);
+    };
+
+    var enableLocSequenceDisplayButtons = function enableLocSequenceDisplayButtons() {
+        $('#revComp2').prop('disabled', false);
+        $('#revCompButton').prop('disabled', false);
+        $('#lowerCase2').prop('disabled', false);
+        $('#lowerCaseButton').prop('disabled', false);
+        $('#fasta2').prop('disabled', false);
+        $('#fastaButton').prop('disabled', false);
+        $('#seqLineLengthL').prop('disabled', false);
+        $('#download_sequence2').prop('disabled', false);
+    };
+
+    var disableIdentSequenceDisplayButtons = function disableIdentSequenceDisplayButtons() {
+        $('#revComp').prop('disabled', true);
+        $('#revCompButton').prop('disabled', true);
+        $('#lowerCase').prop('disabled', true);
+        $('#lowerCaseButton').prop('disabled', true);
+        $('#fasta').prop('disabled', true);
+        $('#fastaButton').prop('disabled', true);
+        $('#seqLineLengthI').prop('disabled', true);
+        $('#download_sequence').prop('disabled', true);
+    };
+
+    var disableLocSequenceDisplayButtons = function disableLocSequenceDisplayButtons() {
+        $('#revComp2').prop('disabled', true);
+        $('#revCompButton').prop('disabled', true);
+        $('#lowerCase2').prop('disabled', true);
+        $('#lowerCaseButton').prop('disabled', true);
+        $('#fasta2').prop('disabled', true);
+        $('#fastaButton').prop('disabled', true);
+        $('#seqLineLengthL').prop('disabled', true);
+        $('#download_sequence2').prop('disabled', true);
     };
 
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
@@ -109,11 +295,13 @@
     var wrapperSequenceByIdentifier = function wrapperSequenceByIdentifier(json) {
         // Verify the API query was successful
         if ( ! (json && json.obj) || json.obj.status !== 'success') {
-            $('.identifier_results', appContext).html(errorMessage('Error with sequence retrieval!'));
+            $('.error', appContext).html(errorMessage('Error with sequence retrieval!'));
             return;
         }
 
-        var returnedSequences = processSequenceResults(json);
+        identifier_sequence = processSequenceResults(json);
+        identifier_sequence.identifier = $('#geneIdentifier').val();
+        identifier_sequence.flank_length = $('#flankLen').val();
         // The search is done, hide the waiting bar
         $('#wait_region').addClass('hidden');
         $('.error').empty();
@@ -122,7 +310,7 @@
 
         // Display the sequence
         var lineLength = $('#seqLineLengthI').val();
-        mySequenceI = displaySequence(mySequenceI, returnedSequences[0], returnedSequences[1], '#identifier_results', IUID, lineLength);
+        mySequenceI = displaySequence(mySequenceI, identifier_sequence, '#identifier_results', IUID, lineLength);
     };
 
 
@@ -132,11 +320,11 @@
     var wrapperSequenceByLocation = function wrapperSequenceByLocation(json) {
         // Verify the API query was successful
         if ( ! (json && json.obj) || json.obj.status !== 'success') {
-            $('.location_results', appContext).html(errorMessage('Error with sequence retrieval!'));
+            $('.error', appContext).html(errorMessage('Error with sequence retrieval!'));
             return;
         }
 
-        var returnedSequences = processSequenceResults(json);
+        location_sequence = processSequenceResults(json);
         // The search is done, hide the waiting bar
         $('#wait_region').addClass('hidden');
         $('.error').empty();
@@ -145,7 +333,7 @@
 
         // Display the sequence
         var lineLength = $('#seqLineLengthL').val();
-        mySequenceL = displaySequence(mySequenceL, returnedSequences[0], returnedSequences[1], '#location_results', LUID, lineLength);
+        mySequenceL = displaySequence(mySequenceL, location_sequence, '#location_results', LUID, lineLength);
     };
 
     // gene report handler
@@ -225,197 +413,6 @@
         });
     };
 
-
-    /* - - - - - - - - - - - - - - - - - - - - - - -*/
-    /* Process function for the sequence search - - */
-    /* - - - - - - - - - - - - - - - - - - - - - - -*/
-    function processSequenceResults( json ) {
-
-        // Begin parsing json
-        var data = json.obj || json;
-
-        // Extract the sequence
-        var sequence = data.result[0].sequence;
-        var start = data.result[0].start;
-        var s_adjust;
-        if(start < 1) {
-            start = 1;
-            s_adjust = 1;
-        } else {
-            s_adjust = start + 1;
-        }
-
-        var end = data.result[0].end;
-        var chromosome = data.result[0].chromosome;
-        var id =  'Sequence ' + ' Location=' + chromosome + '..' + s_adjust + '-' + end + ' ReverseComplemented=false';
-
-        // return sequences and ids
-        orig_sequence = sequence.toUpperCase();
-
-        chromosomeId = chromosome;
-        startCoordinate = start;
-        endCoordinate = end;
-        chromloc = chromosome + '..' + s_adjust + '-' + end;
-        return [orig_sequence,id,chromosome,start,end];
-    }
-
-    /* - - - - - - - - - - - - - - - - - - - - - - */
-    /* Reverse complement the sequence - - - - - - */
-    /* - - - - - - - - - - - - - - - - - - - - - - */
-    function processRevComp(seq, chr, start, end) {
-        var loadSequence = new Nt.Seq();
-        loadSequence.read(seq);
-        var r_sequence = loadSequence.complement().sequence();
-
-        var s_adjust;
-
-        if (start < 1 || startCoordinate === 1) {
-            start = 1;
-            s_adjust = 1;
-        } else {
-            s_adjust = start + 1;
-        }
-
-        var r_id = sequenceIdentifier + ' Location=' + chr + '..' + s_adjust + '-' + end + ' ReverseComplemented=true';
-        return [r_sequence,r_id];
-    }
-
-    /* - - - - - - - - - - - - - - - - - - - - - - */
-    /* Display function for the sequence - - - - - */
-    /* - - - - - - - - - - - - - - - - - - - - - - */
-    function displaySequence(BioJsObj, seq, id, loc, uid, charsPerLine) {
-
-        // repopulate BioJS sequence object and display
-        if (loc === '#identifier_results') {
-            fullSequenceIdentifier = id + ' FlankLength=' + flankLength;
-        } else {
-            fullSequenceIdentifier = id + ' FlankLength=0';
-            flankLength=0;
-        }
-
-        BioJsObj = new Sequence($,seq,sequenceIdentifier);
-        BioJsObj.render(loc, {
-        'showLineNumbers': true,
-        'wrapAminoAcids': true,
-        'charsPerLine': charsPerLine,
-        'toolbar': false,
-        'search': true,
-        'id': uid,
-        'location': chromloc,
-        'flank': flankLength,
-        'revComp': revSeq
-        });
-
-        var seqlen = parseInt(endCoordinate) - parseInt(startCoordinate);
-        if ( flankLength > 0 && loc === '#identifier_results') {
-            var fstart_b = 0;
-            var fend_b = parseInt(flankLength);
-            var fstart_e = parseInt(seqlen) - parseInt(flankLength);
-            var fend_e = seqlen;
-            var seqstart = parseInt(fend_b);
-            var seqend = fstart_e;
-            var flankCoverage = [
-                {start: fstart_b, end: fend_b, color: '#33CCCC', underscore: false},
-                {start: seqstart, end: seqend, color: 'black', underscore: false},
-                {start: fstart_e, end: fend_e, color: '#33CCCC', underscore: false}
-            ];
-
-            //Define Legend and color codes
-            var flankLegend = [
-                {name: 'Target Sequence', color: 'black', underscore: false},
-                {name: 'Flanking sequence', color: '#33CCCC', underscore: false}
-            ];
-
-            BioJsObj.coverage(flankCoverage);
-            BioJsObj.addLegend(flankLegend);
-        }
-
-        curr_id = fullSequenceIdentifier;
-        curr_seq = seq;
-        return BioJsObj;
-    }
-
-    var saveAsFile = function saveAsFile(content, filetype, filename) {
-        try {
-            var isFileSaverSupported = !!new Blob();
-            if (!isFileSaverSupported) {
-                $('.error', appContext).html(errorMessage('Sorry, your browser does not support this feature. Please upgrade to a more modern browser.'));
-            }
-            var blob = new Blob([content], {type: filetype});
-            window.saveAs(blob, filename);
-        } catch (e) {
-            $('.error', appContext).html(errorMessage('Sorry, your browser does not support this feature. Please upgrade to a more modern browser.'));
-        }
-    };
-
-    var redrawSequence = function redrawSequence(revSeq, lowercase, lineLength, seqObj, location, uid) {
-        var lowerCaseSeq = '';
-
-        var s_adjust;
-        if (startCoordinate < 1) {
-            s_adjust = 1;
-        } else {
-            s_adjust = startCoordinate + 1;
-        }
-
-        if ( revSeq === true ) {
-            var reversedArray = processRevComp(orig_sequence,chromosomeId,startCoordinate,endCoordinate);
-            if ( lowerCase === true ) {
-                lowerCaseSeq = reversedArray[0].toLowerCase();
-                seqObj = displaySequence(seqObj, lowerCaseSeq, reversedArray[1], location, uid, lineLength);
-            } else {
-                seqObj = displaySequence(seqObj, reversedArray[0], reversedArray[1], location, uid, lineLength);
-            }
-        } else {
-            fullSequenceIdentifier =  sequenceIdentifier + ' Location=' + chromosomeId + '..' + s_adjust + '-' + endCoordinate + ' ReverseComplemented=false';
-            if ( lowerCase === true ) {
-                lowerCaseSeq = orig_sequence.toLowerCase();
-                seqObj = displaySequence(seqObj, lowerCaseSeq, fullSequenceIdentifier, location, uid, lineLength);
-            }else {
-                seqObj = displaySequence(seqObj, orig_sequence, fullSequenceIdentifier, location, uid, lineLength);
-            }
-        }
-    };
-
-    var enableIdentSequenceDisplayButtons = function enableIdentSequenceDisplayButtons() {
-        $('#revComp').prop('disabled', false);
-        $('#revCompButton').prop('disabled', false);
-        $('#lowerCase').prop('disabled', false);
-        $('#lowerCaseButton').prop('disabled', false);
-        $('#seqLineLengthI').prop('disabled', false);
-        $('#download_sequence').prop('disabled', false);
-    };
-
-    var enableLocSequenceDisplayButtons = function enableLocSequenceDisplayButtons() {
-        $('#revComp2').prop('disabled', false);
-        $('#revCompButton').prop('disabled', false);
-        $('#lowerCase2').prop('disabled', false);
-        $('#lowerCaseButton').prop('disabled', false);
-        $('#seqLineLengthL').prop('disabled', false);
-        $('#download_sequence2').prop('disabled', false);
-    };
-
-    var disableIdentSequenceDisplayButtons = function disableIdentSequenceDisplayButtons() {
-        $('#revComp').prop('disabled', true);
-        $('#revCompButton').prop('disabled', true);
-        $('#lowerCase').prop('disabled', true);
-        $('#lowerCaseButton').prop('disabled', true);
-        $('#seqLineLengthI').prop('disabled', true);
-        $('#download_sequence').prop('disabled', true);
-    };
-
-    var disableLocSequenceDisplayButtons = function disableLocSequenceDisplayButtons() {
-        $('#revComp2').prop('disabled', true);
-        $('#revCompButton').prop('disabled', true);
-        $('#lowerCase2').prop('disabled', true);
-        $('#lowerCaseButton').prop('disabled', true);
-        $('#seqLineLengthL').prop('disabled', true);
-        $('#download_sequence2').prop('disabled', true);
-    };
-
-    /* - - - -Done with- -- - - -  */
-    /* - - - the functions! - - -  */
-
     /* - - - - -  */
     /* Start here */
     /* - - - - -  */
@@ -426,6 +423,7 @@
         $('.error').empty();
         $('#wait_region').addClass('hidden');
         $('#identifier_results').empty();
+        $('#identifier_results_fasta').empty();
         $('#geneIdentifier').val('AT1G01210');
         $('#flankLen').val('0');
         $('#revComp').prop('checked', false);
@@ -438,6 +436,7 @@
         $('.error').empty();
         $('#wait_region').addClass('hidden');
         $('#location_results').empty();
+        $('#location_results_fasta').empty();
         $('#chromosomeId').val('Chr1');
         $('#startCoordinate').val('1');
         $('#endCoordinate').val('1000');
@@ -471,9 +470,9 @@
         $('#wait_region').removeClass('hidden');
 
         // Assign input parameters to global variables
-        geneIdentifier = this.geneIdentifier.value;
-        sequenceIdentifier = geneIdentifier;
-        flankLength = this.flankLen.value;
+        var geneIdentifier = this.geneIdentifier.value;
+        //var sequenceIdentifier = geneIdentifier;
+        var flankLength = this.flankLen.value;
 
         // clear current display/errors
         $('#identifier_results').empty();
@@ -507,25 +506,19 @@
 
         $('#wait_region').removeClass('hidden');
 
-        // Assign input parameters to global variables
-        chromosomeId = this.chromosomeId.value;
-        startCoordinate = this.startCoordinate.value;
-        endCoordinate = this.endCoordinate.value;
-        sequenceIdentifier = 'Sequence';
-
         // clear current display/errors
         $('#location_results').empty();
         $('.error').empty();
 
         // setup query parameters
         var params = {
-            chromosome: chromosomeId,
-            start: startCoordinate,
-            end: endCoordinate,
+            chromosome: this.chromosomeId.value,
+            start: this.startCoordinate.value,
+            end: this.endCoordinate.value,
             flank: 0
         };
 
-        var seqLen = endCoordinate - startCoordinate;
+        var seqLen = this.endCoordinate.value - this.startCoordinate.value;
 
         if ( seqLen >= 100000) {
             $('.error', appContext).html(warningMessage('This could take a while! Thank you for your patience.'));
@@ -571,70 +564,140 @@
         }, showGeneResults, showError);
     });
 
+    var redrawIdentifierSequence = function redrawIdentifierSequence() {
+        identifier_sequence.reverseComplemented = $('#revComp').is(':checked');
+        identifier_sequence.lowerCased = $('#lowerCase').is(':checked');
+        var lineLength = $('#seqLineLengthI').val();
+        mySequenceI = displaySequence(mySequenceI, identifier_sequence, '#identifier_results', IUID, lineLength);
+    };
+
+    var redrawLocationSequence = function redrawLocationSequence() {
+        location_sequence.reverseComplemented = $('#revComp2').is(':checked');
+        location_sequence.lowerCased = $('#lowerCase2').is(':checked');
+        var lineLength = $('#seqLineLengthL').val();
+        mySequenceL = displaySequence(mySequenceL, location_sequence, '#location_results', LUID, lineLength);
+    };
+
     // if the chars per line is changed
     $('#seqLineLengthI').on('change', function () {
-        revSeq = $('#revComp').is(':checked');
-        lowerCase = $('#lowerCase').is(':checked');
-        var lineLength = $('#seqLineLengthI').val();
-
-        redrawSequence(revSeq, lowerCase, lineLength, mySequenceI, '#identifier_results', IUID);
+        redrawIdentifierSequence();
     });
 
     // If the reverse complement button is checked
     $('#revComp').on('click', function() {
-        revSeq = $('#revComp').is(':checked');
-        lowerCase = $('#lowerCase').is(':checked');
-        var lineLength = $('#seqLineLengthI').val();
+        redrawIdentifierSequence();
+    });
 
-        redrawSequence(revSeq, lowerCase, lineLength, mySequenceI, '#identifier_results', IUID);
+    // If the lowercase button is checked
+    $('#lowerCase').on('click', function() {
+        redrawIdentifierSequence();
     });
 
     $('#download_sequence').on('click', function() {
-        var content = '>' + fullSequenceIdentifier + '\n' + curr_seq;
+        identifier_sequence.reverseComplemented = $('#revComp').is(':checked');
+        identifier_sequence.lowerCased = $('#lowerCase').is(':checked');
+        var lineLength = $('#seqLineLengthI').val();
+        var content = formatSequence(identifier_sequence.draw(), identifier_sequence.definitionLine(), lineLength);
         saveAsFile(content, 'text/plain;charset=utf-8', 'sequence.txt');
     });
 
+    $('#fasta').on('click', function() {
+        if ($('#fasta').is(':checked')) {
+            $('#identifier_results').addClass('hidden');
+            $('#identifier_results_fasta').removeClass('hidden');
+            identifier_sequence.reverseComplemented = $('#revComp').is(':checked');
+            identifier_sequence.lowerCased = $('#lowerCase').is(':checked');
+            var lineLength = $('#seqLineLengthI').val();
+            var content = formatSequence(identifier_sequence.draw(), identifier_sequence.definitionLine(), lineLength);
+            var display = '<br>' +
+                          '<textarea id="ident_fasta_box" class="form-control fasta-box" rows="10" readonly>' +
+                          content +
+                          '</textarea>' +
+                          '<br>' +
+                          '<button class="btn-clipboard" data-clipboard-target="#ident_fasta_box">' +
+                          '<i class="fa fa-clipboard"></i> Copy to Clipboard</button>';
+            $('#identifier_results_fasta').html(display);
 
-    // If the reverse complement button is checked
-    $('#lowerCase').on('click', function() {
-        lowerCase = $('#lowerCase').is(':checked');
-        revSeq = $('#revComp').is(':checked');
-        var lineLength = $('#seqLineLengthI').val();
+            // disable relevant buttons
+            $('#revComp').prop('disabled', true);
+            $('#revCompButton').prop('disabled', true);
+            $('#lowerCase').prop('disabled', true);
+            $('#lowerCaseButton').prop('disabled', true);
+            $('#seqLineLengthI').prop('disabled', true);
 
-        redrawSequence(revSeq, lowerCase, lineLength, mySequenceI, '#identifier_results', IUID);
+        } else {
+            $('#identifier_results').removeClass('hidden');
+            $('#identifier_results_fasta').empty();
+            $('#identifier_results_fasta').addClass('hidden');
+
+            // enable all buttons
+            $('#revComp').prop('disabled', false);
+            $('#revCompButton').prop('disabled', false);
+            $('#lowerCase').prop('disabled', false);
+            $('#lowerCaseButton').prop('disabled', false);
+            $('#seqLineLengthI').prop('disabled', false);
+        }
     });
 
     // if the chars per line is changed
     $('#seqLineLengthL').on('change', function () {
-        revSeq = $('#revComp2').is(':checked');
-        lowerCase = $('#lowerCase2').is(':checked');
-        var lineLength = $('#seqLineLengthL').val();
-
-        redrawSequence(revSeq, lowerCase, lineLength, mySequenceL, '#location_results', LUID);
+        redrawLocationSequence();
     });
 
     // If the reverse complement button is checked
     $('#revComp2').on('click', function() {
-        revSeq = $('#revComp2').is(':checked');
-        lowerCase = $('#lowerCase2').is(':checked');
-        var lineLength = $('#seqLineLengthL').val();
+        redrawLocationSequence();
+    });
 
-        redrawSequence(revSeq, lowerCase, lineLength, mySequenceL, '#location_results', LUID);
+    // If the lowercase button is checked
+    $('#lowerCase2').on('click', function() {
+        redrawLocationSequence();
     });
 
     $('#download_sequence2').on('click', function() {
-        var content = '>' + fullSequenceIdentifier + '\n' + curr_seq;
+        location_sequence.reverseComplemented = $('#revComp2').is(':checked');
+        location_sequence.lowerCased = $('#lowerCase2').is(':checked');
+        var lineLength = $('#seqLineLengthL').val();
+        var content = formatSequence(location_sequence.draw(), location_sequence.definitionLine(), lineLength);
         saveAsFile(content, 'text/plain;charset=utf-8', 'sequence.txt');
     });
 
+    $('#fasta2').on('click', function() {
+        if ($('#fasta2').is(':checked')) {
+            $('#location_results').addClass('hidden');
+            $('#location_results_fasta').removeClass('hidden');
+            location_sequence.reverseComplemented = $('#revComp2').is(':checked');
+            location_sequence.lowerCased = $('#lowerCase2').is(':checked');
+            var lineLength = $('#seqLineLengthL').val();
+            var content = formatSequence(location_sequence.draw(), location_sequence.definitionLine(), lineLength);
+            var display = '<br>' +
+                          '<textarea id="location_fasta_box" class="form-control fasta-box" rows="10" readonly>' +
+                          content +
+                          '</textarea>' +
+                          '<br>' +
+                          '<button class="btn-clipboard" data-clipboard-target="#location_fasta_box">' +
+                          '<i class="fa fa-clipboard"></i> Copy to Clipboard</button>';
+            $('#location_results_fasta').html(display);
 
-    // If the reverse complement button is checked
-    $('#lowerCase2').on('click', function() {
-        lowerCase = $('#lowerCase2').is(':checked');
-        revSeq = $('#revComp2').is(':checked');
-        var lineLength = $('#seqLineLengthL').val();
+            // disable relevant buttons
+            $('#revComp2').prop('disabled', true);
+            $('#revCompButton').prop('disabled', true);
+            $('#lowerCase2').prop('disabled', true);
+            $('#lowerCaseButton').prop('disabled', true);
+            $('#seqLineLengthL').prop('disabled', true);
 
-        redrawSequence(revSeq, lowerCase, lineLength, mySequenceL, '#location_results', LUID);
+        } else {
+            $('#location_results').removeClass('hidden');
+            $('#location_results_fasta').empty();
+            $('#location_results_fasta').addClass('hidden');
+
+            // enable all buttons
+            $('#revComp2').prop('disabled', false);
+            $('#revCompButton').prop('disabled', false);
+            $('#lowerCase2').prop('disabled', false);
+            $('#lowerCaseButton').prop('disabled', false);
+            $('#seqLineLengthL').prop('disabled', false);
+        }
     });
 
     $('.gene_list_results', appContext).on('click', '#export_list', function (e) {

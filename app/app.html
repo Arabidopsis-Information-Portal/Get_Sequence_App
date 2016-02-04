@@ -61,11 +61,12 @@
 
                 <div id="identifier_display" class="hidden">
                     <div class="form-inline">
-                        <div class="form-group row">
+                        <div class="form-group row" style="margin-left: 6px">
                             <div id="reverse_region">
                                 <input type="checkbox" name="revComp" id="revComp" value="0" class="revbox" /><span class="revCompButton"><label for="revComp" class="control-label">Reverse Complement</label></span>&nbsp;
-                                <input type="checkbox" name="lowerCase" id="lowerCase" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase" class="control-label">Lowercase</label></span>
-                                <span id="download_region"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence">Download</button></span>
+                                <input type="checkbox" name="lowerCase" id="lowerCase" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase" class="control-label">Lowercase</label></span>&nbsp;
+                                <input type="checkbox" name="fasta" id="fasta" value="0" class="revbox" /><span class="fastaButton"><label for="fasta" class="control-label">FASTA</label></span>
+                                <span id="download_region"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-warning" id="download_sequence">Download</button></span>
                                 <div class="input-group">
                                     <span class="input-group-addon">Char per line:</span>
                                     <select id="seqLineLengthI" class="form-control" style="border-top-left-radius:0px;border-bottom-left-radius:0px;">
@@ -82,6 +83,7 @@
                     </div>
 
                     <div id="identifier_results" class="identifier_results col-xs-10"></div>
+                    <div id="identifier_results_fasta" class="identifier_results col-xs-10 hidden"></div>
                 </div>
             </div>
 
@@ -129,11 +131,12 @@
 
                 <div id="location_display" class="hidden">
                     <div class="form-inline">
-                        <div class="form-group row">
+                        <div class="form-group row" style="margin-left: 6px">
                             <div id="reverse_region2">
                                 <input type="checkbox" name="revComp2" id="revComp2" value="0" class="revbox" /><span class="revCompButton"><label for="revComp2" class="control-label">Reverse Complement</label></span>&nbsp;
-                                <input type="checkbox" name="lowerCase2" id="lowerCase2" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase2" class="control-label">Lowercase</label></span>
-                                <span id="download_region2"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-danger" id="download_sequence2">Download</button></span>
+                                <input type="checkbox" name="lowerCase2" id="lowerCase2" value="0" class="revbox" /><span class="lowerCaseButton"><label for="lowerCase2" class="control-label">Lowercase</label></span>&nbsp;
+                                <input type="checkbox" name="fasta2" id="fasta2" value="0" class="revbox" /><span class="fastaButton"><label for="fasta2" class="control-label">FASTA</label></span>
+                                <span id="download_region2"><button title="DOWLOAD FASTA FORMAT" type="button" class="btn btn-warning" id="download_sequence2">Download</button></span>
                                 <div class="input-group">
                                     <span class="input-group-addon">Char per line:</span>
                                     <select id="seqLineLengthL" class="form-control" style="border-top-left-radius:0px;border-bottom-left-radius:0px;">
@@ -150,6 +153,7 @@
                     </div>
 
                     <div id="location_results" class="location_results form-group col-xs-10"></div>
+                    <div id="location_results_fasta" class="location_results form-group col-xs-10 hidden"></div>
                 </div>
             </div>
 
