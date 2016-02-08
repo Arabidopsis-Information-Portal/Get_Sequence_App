@@ -185,7 +185,7 @@
     /* - - - - - - - - - - - - - - - - - - - - - - */
     function displaySequence(BioJsObj, seq_obj, loc, uid, charsPerLine) {
 
-        BioJsObj = new Sequence($,seq_obj.sequence,seq_obj.identifier);
+        BioJsObj = new Sequence($,seq_obj.draw(),seq_obj.identifier);
         BioJsObj.render(loc, {
         'showLineNumbers': true,
         'wrapAminoAcids': true,
@@ -372,7 +372,7 @@
     var showGeneResults = function showGeneResults(json) {
         // Verify the API query was successful
         if ( ! (json && json.obj) || json.obj.status !== 'success') {
-            $('.gene_list_results', appContext).html(errorMessage('Error with retrieval of genes!'));
+            $('.error', appContext).html(errorMessage('Error with retrieval of genes!'));
             return;
         }
 
@@ -423,11 +423,14 @@
         $('.error').empty();
         $('#wait_region').addClass('hidden');
         $('#identifier_results').empty();
+        $('#identifier_results').removeClass('hidden');
         $('#identifier_results_fasta').empty();
+        $('#identifier_results_fasta').addClass('hidden');
         $('#geneIdentifier').val('AT1G01210');
         $('#flankLen').val('0');
         $('#revComp').prop('checked', false);
         $('#lowerCase').prop('checked', false);
+        $('#fasta').prop('checked', false);
         $('#seqLineLengthI').val('60');
         $('#identifier_display').addClass('hidden');
     });
@@ -436,12 +439,15 @@
         $('.error').empty();
         $('#wait_region').addClass('hidden');
         $('#location_results').empty();
+        $('#location_results').removeClass('hidden');
         $('#location_results_fasta').empty();
+        $('#location_results_fasta').addClass('hidden');
         $('#chromosomeId').val('Chr1');
         $('#startCoordinate').val('1');
         $('#endCoordinate').val('1000');
         $('#revComp2').prop('checked', false);
         $('#lowerCase2').prop('checked', false);
+        $('#fasta2').prop('checked', false);
         $('#seqLineLengthL').val('60');
         $('#location_display').addClass('hidden');
     });
@@ -463,6 +469,7 @@
         // uncheck checkboxes
         $('#revComp').prop('checked', false);
         $('#lowerCase').prop('checked', false);
+        $('#fasta').prop('checked', false);
         $('#seqLineLengthI').val('60');
 
         e.preventDefault();
@@ -476,6 +483,9 @@
 
         // clear current display/errors
         $('#identifier_results').empty();
+        $('#identifier_results').removeClass('hidden');
+        $('#identifier_results_fasta').empty();
+        $('#identifier_results_fasta').addClass('hidden');
         $('.error').empty();
 
         // setup query parameters
@@ -500,6 +510,7 @@
         // uncheck checkboxes
         $('#revComp2').prop('checked', false);
         $('#lowerCase2').prop('checked', false);
+        $('#fasta2').prop('checked', false);
         $('#seqLineLengthL').val('60');
 
         e.preventDefault();
@@ -508,6 +519,9 @@
 
         // clear current display/errors
         $('#location_results').empty();
+        $('#location_results').removeClass('hidden');
+        $('#location_results_fasta').empty();
+        $('#location_results_fasta').addClass('hidden');
         $('.error').empty();
 
         // setup query parameters
@@ -702,6 +716,9 @@
 
     $('.gene_list_results', appContext).on('click', '#export_list', function (e) {
         e.preventDefault();
+        var export_button = $(this);
+        export_button.html('<i class="fa fa-refresh fa-spin"></i> Exporting...');
+        export_button.prop('disabled', true);
         var ids = [];
         gTable.column(0).data().each(function (value) {
             ids.push($($.parseHTML(value)).text());
@@ -721,6 +738,8 @@
                 var msg = 'Error creating list ' + list_name + ' for user ' +  getUserName() + ' in ThaleMine. Please try again later!';
                 $('.error', appContext).html(errorMessage(msg));
                 console.error(msg + ': ' + err);
+                export_button.html('Export as List to ThaleMine');
+                export_button.prop('disabled', false);
             },
             success: function (data) {
                 if ( ! (data) || ! data.wasSuccessful) {
@@ -730,6 +749,8 @@
                     return;
                 }
                 $('.error', appContext).html(infoMessage('List ' + list_name + ' created for user ' + getUserName() + ' in ThaleMine!'));
+                export_button.html('Export as List to ThaleMine');
+                export_button.prop('disabled', false);
             }
         });
     });
