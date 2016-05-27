@@ -391,7 +391,7 @@
                                                                        'width': '40px'}]} );
 
         if (gTable.data().length > 0) {
-            $('div.gene_list_results', appContext).prepend('<button type="button" class="btn btn-default export-button" id="export_list">Export as List to ThaleMine</button>');
+            $('div.gene_list_results', appContext).prepend('<div><button type="button" class="btn btn-default export-button" id="export_list">Export as List to ThaleMine</button></div><div style="clear: both;"></div>');
         }
 
         Agave.api.adama.getAccess(

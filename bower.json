@@ -2,8 +2,8 @@
   "name": "getsequence-app",
   "private": true,
   "dependencies": {
-    "datatables": "~1.10.9",
-    "datatables-bootstrap3": "*",
+    "datatables.net": "^1.10.12",
+    "datatables.net-bs": "^1.10.12",
     "FileSaver.js": "Arabidopsis-Information-Portal/FileSaver.js",
     "handlebars": "~3.0.3",
     "NtSeq": "Arabidopsis-Information-Portal/NtSeq#1.0.9",
