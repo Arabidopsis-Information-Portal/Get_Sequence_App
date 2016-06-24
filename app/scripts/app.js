@@ -728,7 +728,7 @@
         var list_name = 'Genes_on_' + $('#gene_chromosomeId').val() + '_between_' + $('#geneStartCoordinate').val() + '_and_' + $('#geneEndCoordinate').val() + '-' + new Date().toISOString();
 
         $.ajax({
-            url: 'https://api.araport.org/community/v0.3/aip/create_thalemine_list_v1.1/access?name=' + list_name + '&type=Gene',
+            url: 'https://api.araport.org/community/v0.3/aip/create_thalemine_list_v1.2/access?name=' + list_name + '&type=Gene',
             contentType: 'text/plain',
             type: 'POST',
             processData: false,
