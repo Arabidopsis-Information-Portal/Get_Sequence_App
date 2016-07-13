@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-  <title>getsequence app | AIP Science Apps | Test Runner</title>
+  <title>getsequence-app | AIP Science Apps | Test Runner</title>
   <link rel="shortcut icon" href="https://www.araport.org/sites/all/themes/custom/araport-theme/favicon.ico">
 
   <!-- jquery -->
@@ -17,7 +17,9 @@
   <!-- bower:css -->
   <link rel="stylesheet" href="bower_components/datatables.net-bs/css/dataTables.bootstrap.css" />
   <!-- endbower-->
-
+  <!-- araport_dep:css -->
+  <link rel="stylesheet" href="app/styles/app.css" />  
+  <!-- endaraport_dep -->
   <style type="text/css">
   body {
     padding-top: 60px;
@@ -25,7 +27,6 @@
   </style>
 
   <!-- application styles -->
-  <link rel="stylesheet" type="text/css" href="/app/styles/app.css">
 </head>
 <body>
   <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -64,7 +65,9 @@
   </div>
 
   <div class="aip-science-app container">
-    include "/app/app.html"
+  <!-- araport_dep:html -->
+  include "/app/app.html"  
+  <!-- endaraport_dep -->
   </div>
 
   <!-- swagger-js -->
@@ -84,8 +87,10 @@
   <script src="bower_components/underscore/underscore.js"></script>
   <script src="bower_components/clipboard/dist/clipboard.js"></script>
   <!-- endbower -->
+  <!-- araport_dep:js -->
+  <script src="app/scripts/app.js"></script>  
+  <!-- endaraport_dep -->
 
   <!-- application code -->
-  <script src="/app/scripts/app.js"></script>
 </body>
 </html>

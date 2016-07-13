@@ -347,7 +347,7 @@
             }
             var query = { locus: locus };
             Agave.api.adama.search(
-                {'namespace': 'aip', 'service': 'locus_gene_report_v0.2.0', 'queryParams': query},
+                {'namespace': 'araport', 'service': 'locus_gene_report_v0.2.0', 'queryParams': query},
                 function(search) {
                     el.popover({title: 'Gene Report: ' + locus,
                                 content: templates.geneReportPopover(search.obj.result[0]),

@@ -1,0 +1,16 @@
+{
+  "namespace" : "getsequence-app",
+  "name": "Sequence Viewer App",
+  "description": "Display sequences obtained from ThaleMine, an Arabidopsis-specific instance of InterMine.",
+  "html": "app.html",
+  "scripts": [
+    "scripts/app.js"
+  ],
+  "styles": [
+    "styles/app.css"
+  ],
+  "tags": [
+    "arabidopsis", "gene", "features", "ThaleMine", "sequence"
+  ],
+  "icon": "app/images/logo.png"
+}
